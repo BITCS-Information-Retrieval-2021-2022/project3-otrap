@@ -1,0 +1,29 @@
+<template>
+  <q-layout view="lHh Lpr lFf">
+    <q-header elevated>
+      <q-toolbar>
+        <q-toolbar-title>
+          <q-icon class="q-pr-md" name="eva-home" @click="toHomePage" />
+          Proj3 xxx
+        </q-toolbar-title>
+      </q-toolbar>
+    </q-header>
+
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+  </q-layout>
+</template>
+
+<script>
+export default {
+  name: "MainLayout",
+  methods: {
+    toHomePage() {
+      if (this.$route.path != "/") {
+        this.$router.push("/");
+      }
+    },
+  },
+};
+</script>

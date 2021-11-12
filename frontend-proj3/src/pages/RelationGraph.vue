@@ -1,0 +1,394 @@
+<template>
+  <div>
+    <!-- <div style="height: 100px" /> -->
+    <div class="row justify-center items-center no-wrap">
+      <div id="relation_graph" style="width: 1200px; height: 1000px"></div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { List } from "echarts";
+export default {
+  data() {
+    return {};
+  },
+  mounted: function () {
+    var echarts = require("echarts");
+
+    this.graph_render(echarts);
+
+    // toy model
+    // 点击 “话题分析” 添加节点
+    // this.toy_model_render(echarts);
+  },
+  methods: {
+    async graph_render(echarts) {
+      var ROOT_PATH =
+        "https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples";
+
+      var myChart = echarts.init(document.getElementById("relation_graph"));
+
+      myChart.showLoading();
+      let res = await this.$axios.get(
+        ROOT_PATH + "/data/asset/data/les-miserables.json"
+      );
+      myChart.hideLoading();
+
+      //   console.log(res.data);
+      var option = this.process_data(myChart, res.data);
+      myChart.setOption(option);
+
+      this.manipulate_data(myChart);
+    },
+    process_data(myChart, graph) {
+      graph.nodes.forEach(function (node) {
+        node.label = {
+          show: node.symbolSize > 30,
+        };
+      });
+      console.log("show data:");
+      console.log(graph);
+
+      let option = {
+        title: {
+          text: "关系图",
+          subtext: "Default layout",
+          top: "bottom",
+          left: "right",
+        },
+        tooltip: {},
+        legend: [
+          {
+            // selectedMode: 'single',
+            data: graph.categories.map(function (a) {
+              return a.name;
+            }),
+          },
+        ],
+        animationDuration: 1500,
+        animationEasingUpdate: "quinticInOut",
+        series: [
+          {
+            name: "Les Miserables",
+            type: "graph",
+            layout: "none",
+            data: graph.nodes,
+            links: graph.links,
+            categories: graph.categories,
+            roam: true,
+            label: {
+              position: "right",
+              formatter: "{b}",
+            },
+            lineStyle: {
+              color: "source",
+              curveness: 0.3,
+            },
+            emphasis: {
+              focus: "adjacency",
+              lineStyle: {
+                width: 10,
+              },
+            },
+          },
+        ],
+      };
+      return option;
+    },
+    manipulate_data(myChart) {
+      myChart.on("click", function (params) {
+        console.log("show click params:");
+        console.log(params);
+
+        if (params.name != null) {
+          console.log(params.name);
+        }
+      });
+    },
+    // toy model
+    toy_model_render(echarts) {
+      var myChart = echarts.init(document.getElementById("relation_graph"));
+      var option = {
+        backgroundColor: "#1a4377",
+
+        tooltip: {},
+        animationDurationUpdate: 1500,
+        animationEasingUpdate: "quinticInOut",
+        color: ["#83e0ff", "#45f5ce", "#b158ff"],
+        series: [
+          {
+            type: "graph",
+            layout: "force",
+            force: {
+              repulsion: 1000,
+              edgeLength: 50,
+            },
+            roam: true,
+            label: {
+              normal: {
+                show: true,
+              },
+            },
+            data: this.toy_get_data(),
+            links: this.toy_get_links(),
+            lineStyle: {
+              normal: {
+                opacity: 0.9,
+                width: 5,
+                curveness: 0,
+              },
+            },
+            categories: [{ name: "0" }, { name: "1" }, { name: "2" }],
+          },
+        ],
+      };
+      myChart.setOption(option);
+
+      // 事件=>增加数据，重新渲染
+      this.toy_append_data(myChart);
+    },
+    toy_get_links() {
+      var linkmes = [];
+      linkmes.push(
+        {
+          source: "校园大数据",
+          target: "舆情大数据",
+        },
+        {
+          source: "校园大数据",
+          target: "图书馆分析",
+        },
+        {
+          source: "舆情大数据",
+          target: "用户分析",
+        },
+        {
+          source: "舆情大数据",
+          target: "话题分析",
+        },
+        {
+          source: "舆情大数据",
+          target: "评论分析",
+        },
+        {
+          source: "校园大数据",
+          target: "图书馆分析",
+        },
+        {
+          source: "图书馆分析",
+          target: "图书分析",
+        },
+        {
+          source: "图书馆分析",
+          target: "借阅分析",
+        },
+        {
+          source: "图书馆分析",
+          target: "借阅排行",
+          value: "DNA",
+        },
+        {
+          source: "图书馆分析",
+          target: "图书收录",
+        }
+      );
+      return linkmes;
+    },
+    toy_get_data() {
+      var datas = [];
+      datas.push(
+        {
+          name: "校园大数据",
+
+          symbolSize: 120,
+          draggable: true,
+          category: 0,
+          itemStyle: {
+            normal: {
+              borderColor: "#04f2a7",
+              borderWidth: 6,
+              shadowBlur: 20,
+              shadowColor: "#04f2a7",
+              color: "#001c43",
+            },
+          },
+        },
+        {
+          name: "舆情大数据",
+          symbolSize: 100,
+          itemStyle: {
+            normal: {
+              borderColor: "#04f2a7",
+              borderWidth: 4,
+              shadowBlur: 10,
+              shadowColor: "#04f2a7",
+              color: "#001c43",
+            },
+          },
+          category: 1,
+        },
+        {
+          name: "用户分析",
+          symbolSize: 80,
+          category: 1,
+          itemStyle: {
+            normal: {
+              borderColor: "#04f2a7",
+              borderWidth: 4,
+              shadowBlur: 10,
+              shadowColor: "#04f2a7",
+              color: "#001c43",
+            },
+          },
+        },
+        {
+          name: "话题分析",
+          symbolSize: 80,
+          category: 1,
+          itemStyle: {
+            normal: {
+              borderColor: "#82dffe",
+              borderWidth: 4,
+              shadowBlur: 10,
+              shadowColor: "#04f2a7",
+              color: "#001c43",
+            },
+          },
+        },
+        {
+          name: "评论分析",
+          symbolSize: 80,
+          category: 1,
+          itemStyle: {
+            normal: {
+              borderColor: "#82dffe",
+              borderWidth: 4,
+              shadowBlur: 10,
+              shadowColor: "#04f2a7",
+              color: "#001c43",
+            },
+          },
+        },
+        {
+          name: "图书馆分析",
+          symbolSize: 100,
+          category: 2,
+          itemStyle: {
+            normal: {
+              borderColor: "#82dffe",
+              borderWidth: 4,
+              shadowBlur: 10,
+              shadowColor: "#04f2a7",
+              color: "#001c43",
+            },
+          },
+        },
+        {
+          name: "借阅分析",
+          symbolSize: 80,
+          category: 2,
+          itemStyle: {
+            normal: {
+              borderColor: "#b457ff",
+              borderWidth: 4,
+              shadowBlur: 10,
+              shadowColor: "#b457ff",
+              color: "#001c43",
+            },
+          },
+        },
+        {
+          name: "借阅排行",
+          symbolSize: 80,
+          itemStyle: {
+            normal: {
+              borderColor: "#82dffe",
+              borderWidth: 4,
+              shadowBlur: 10,
+              shadowColor: "#04f2a7",
+              color: "#001c43",
+            },
+          },
+          category: 2,
+        },
+        {
+          name: "图书收录",
+          symbolSize: 80,
+          itemStyle: {
+            normal: {
+              borderColor: "#82dffe",
+              borderWidth: 4,
+              shadowBlur: 10,
+              shadowColor: "#04f2a7",
+              color: "#001c43",
+            },
+          },
+          category: 2,
+        },
+        {
+          name: "图书分析",
+          symbolSize: 80,
+          category: 2,
+          itemStyle: {
+            normal: {
+              borderColor: "#82dffe",
+              borderWidth: 4,
+              shadowBlur: 10,
+              shadowColor: "#04f2a7",
+              color: "#001c43",
+            },
+          },
+        }
+      );
+      return datas;
+    },
+    toy_append_data(myChart) {
+      var datas = this.toy_get_data();
+      var linkmes = this.toy_get_links();
+      myChart.on("click", function (params) {
+        console.log("log params:");
+        console.log(params);
+
+        if (params.name != null) {
+          //var mes=params.name.replace(/\d+/g,"")
+          if (params.name == "话题分析") {
+            //这里我用到了params.name，当我们点击的节点的name的值为“话题分析”时就会进入下面的方法
+
+            datas.push({
+              name: "图书分析a",
+              symbolSize: 80,
+              category: 2,
+              itemStyle: {
+                normal: {
+                  borderColor: "#82dffe",
+                  borderWidth: 4,
+                  shadowBlur: 10,
+                  shadowColor: "#04f2a7",
+                  color: "#001c43",
+                },
+              },
+            });
+            //上面就是把新数据添加到datas里面
+            linkmes.push({
+              source: "图书分析a",
+              target: "话题分析",
+            });
+            //上面就是把连接关系添加到linkmes数组中
+
+            //重新画关系图
+            myChart.setOption({
+              series: [
+                {
+                  data: datas,
+                  links: linkmes,
+                },
+              ],
+            });
+          }
+        }
+      });
+    },
+  },
+};
+</script>
