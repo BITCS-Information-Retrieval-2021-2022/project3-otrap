@@ -1,6 +1,5 @@
 # 前端运行方法(frontend-proj3)
-安装 node.js
-[安装教程](https://zhuanlan.zhihu.com/p/82347262)
+安装 node.js，参考：[安装教程](https://zhuanlan.zhihu.com/p/82347262)
 
 
 ## Install the dependencies
