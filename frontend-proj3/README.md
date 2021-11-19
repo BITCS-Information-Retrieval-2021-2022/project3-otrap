@@ -1,26 +1,13 @@
-# Quasar App (frontend-proj3)
+# 前端运行方法(frontend-proj3)
+安装 node.js，参考：[安装教程](https://zhuanlan.zhihu.com/p/82347262)
 
-A Quasar Framework app
 
 ## Install the dependencies
 ```bash
-yarn
+npm install
 ```
 
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
 quasar dev
 ```
-
-### Lint the files
-```bash
-yarn run lint
-```
-
-### Build the app for production
-```bash
-quasar build
-```
-
-### Customize the configuration
-See [Configuring quasar.conf.js](https://v1.quasar.dev/quasar-cli/quasar-conf-js).
