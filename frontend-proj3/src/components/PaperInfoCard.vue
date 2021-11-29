@@ -3,8 +3,8 @@
     <q-card-section>
       <div class="row items-center no-wrap">
         <div class="col">
-          <div class="text-h6">Our Planet</div>
-          <div class="text-subtitle2">by John Doe</div>
+          <div class="text-h6">{{ nodeTitle }}</div>
+          <div class="text-subtitle2">id: {{ nodeId }}</div>
         </div>
       </div>
     </q-card-section>
@@ -22,6 +22,14 @@ export default {
     return {
       lorem: "根据重要性分数，节点的大小或颜色应该有所区分.",
     };
+  },
+  computed: {
+    nodeTitle: function () {
+      return this.$store.getters["RelationGraph/getNodeTitle"];
+    },
+    nodeId: function () {
+      return this.$store.getters["RelationGraph/getNodeId"];
+    },
   },
 };
 </script>

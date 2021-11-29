@@ -13,8 +13,14 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="left" side="left" class="fit">
-      <!-- drawer content -->
+    <!-- left drawer content -->
+    <q-drawer
+      show-if-above
+      v-model="left"
+      side="left"
+      elevated
+      content-class="bg-grey-3"
+    >
       <div class="q-pa-sm">
         <search-table :query="search_query" enableToggle="true" />
       </div>
@@ -24,8 +30,14 @@
       <router-view />
     </q-page-container>
 
-    <q-drawer show-if-above v-model="right" side="right">
-      <!-- drawer content -->
+    <!-- right drawer content -->
+    <q-drawer
+      show-if-above
+      v-model="right"
+      side="right"
+      elevated
+      content-class="bg-grey-3"
+    >
       <div class="q-pa-sm">
         <paper-info-card class="fit" />
       </div>
@@ -53,3 +65,9 @@ export default {
   },
 };
 </script>
+
+
+<style lang="sass" scoped>
+.drawer-bg
+  color: $blue-grey-10
+</style>

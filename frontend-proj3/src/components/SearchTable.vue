@@ -1,4 +1,9 @@
 <template>
+  <!-- <q-card>
+      <q-card-section class="q-gutter-sm">
+        <p class="text-h5">retrival result of papaer</p>
+      </q-card-section>
+    </q-card> -->
   <q-table
     :data="tdata"
     :columns="dy_columns"
@@ -8,23 +13,34 @@
     :filter="search_filter"
   >
     <template v-slot:top="props">
-      <q-space />
-      <q-input flat debounce="300" label="在结果中查找" v-model="search_filter">
-        <template v-slot:append>
-          <q-icon name="search" />
-        </template>
-      </q-input>
-      <q-btn
-        flat
-        round
-        dense
-        :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-        @click="
-          props.toggleFullscreen();
-          expand_table();
-        "
-        class="q-ml-md"
-      />
+      <div class="column items-center">
+        <p class="text-h5">Title:{{ paperTitle }}</p>
+
+        <div class="row q-gutter-x-md q-gutter-y-xl">
+          <q-space />
+          <q-input
+            flat
+            debounce="300"
+            label="在结果中查找"
+            v-model="search_filter"
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+          <q-btn
+            flat
+            round
+            dense
+            :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+            @click="
+              props.toggleFullscreen();
+              expand_table();
+            "
+            class="q-ml-md"
+          />
+        </div>
+      </div>
     </template>
 
     <template v-slot:body="props">
@@ -132,6 +148,9 @@ export default {
         // console.log("dy_sid:" + this.dy_columns[0].field);
         return this.dy_columns[0].field;
       }
+    },
+    paperTitle: function () {
+      return this.$store.getters["RelationGraph/getNodeTitle"];
     },
   },
   async mounted() {

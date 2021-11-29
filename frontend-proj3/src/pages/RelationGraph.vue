@@ -1,14 +1,14 @@
 <template>
   <div>
     <!-- <div style="height: 100px" /> -->
-    <div class="row justify-center items-center no-wrap">
-      <div id="relation_graph" style="width: 1200px; height: 1000px"></div>
+    <div class="row justify-center items-start no-wrap">
+      <div id="relation_graph" class="my-graph"></div>
+      <!-- style="width: 1200px; height: 1000px" -->
     </div>
   </div>
 </template>
 
 <script>
-import { List } from "echarts";
 export default {
   data() {
     return {};
@@ -18,6 +18,9 @@ export default {
 
     this.graph_render(echarts);
 
+    // this.$store.commit('RelationGraph/setNodeId', '55');
+    // console.log(this.$store.state.RelationGraph.nodeId);
+    // console.log(this.$store.getters['RelationGraph/getNodeId'])
     // toy model
     // 点击 “话题分析” 添加节点
     // this.toy_model_render(echarts);
@@ -36,12 +39,12 @@ export default {
       myChart.hideLoading();
 
       //   console.log(res.data);
-      var option = this.process_data(myChart, res.data);
+      var option = this.process_data(res.data);
       myChart.setOption(option);
 
       this.manipulate_data(myChart);
     },
-    process_data(myChart, graph) {
+    process_data(graph) {
       graph.nodes.forEach(function (node) {
         node.label = {
           show: node.symbolSize > 30,
@@ -58,6 +61,7 @@ export default {
           left: "right",
         },
         tooltip: {},
+
         legend: [
           {
             // selectedMode: 'single',
@@ -91,20 +95,39 @@ export default {
                 width: 10,
               },
             },
+            // edgeSymbol: ["none", "arrow"], 难看
           },
         ],
       };
       return option;
     },
     manipulate_data(myChart) {
-      myChart.on("click", function (params) {
-        console.log("show click params:");
-        console.log(params);
+      myChart.on(
+        "click",
+        function (params) {
+          console.log("show click params:");
+          console.log(params);
 
-        if (params.name != null) {
-          console.log(params.name);
-        }
-      });
+          if (params.name == null) {
+            return;
+          }
+
+          if (params.dataType == "node") {
+            console.log("show click node");
+            console.log(params.data);
+            this.$store.commit("RelationGraph/setNodeId", params.data.id);
+            this.$store.commit("RelationGraph/setNodeTitle", params.data.name);
+            // console.log(this.$store.state.RelationGraph.nodeId)
+            // console.log(this.$store.getters["RelationGraph/getNodeId"]);
+          } else if (params.dataType == "edge") {
+            console.log("show click edge");
+            console.log(params);
+            this.$store.commit("RelationGraph/setEdge", params.data);
+            let e = this.$store.getters["RelationGraph/getEdge"];
+            console.log(e.source, "->", e.target);
+          }
+        }.bind(this)
+      );
     },
     // toy model
     toy_model_render(echarts) {
@@ -392,3 +415,12 @@ export default {
   },
 };
 </script>
+
+
+<style lang="sass" scoped>
+.my-graph
+  width: 100%
+  height: 100%
+  background: $blue-grey-1
+  position: absolute
+</style>
