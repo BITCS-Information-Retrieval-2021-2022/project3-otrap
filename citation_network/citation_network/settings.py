@@ -141,14 +141,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #url后面添加斜杠
 APPEND_SLASH = True
-
-HAYSTACK_CONNECTIONS ={
-    'default': {
-        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-        'URL': 'http://127.0.0.1:9200/',
-        'INDEX_NAME': 'testdjango',
-    },
-}
-
-HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'

@@ -1,22 +1,8 @@
-from elasticsearch_dsl import DocType, Date, Nested, Boolean, \
-    analyzer, Completion, Keyword, Text, Integer
-from elasticsearch_dsl.analysis import CustomAnalyzer as _CustomAnalyzer
+from django.db import models
 
-from elasticsearch_dsl.connections import connections
-
-connections.create_connection(hosts=["localhost"])
-
-class Paper(DocType):
-    _id = Text()
-    id = Text()
-    Title = Text()
-    Year = Integer()
-    inCitationscount = Integer()
-    outCitationscount = Integer()
-
-    class Meta:
-        index = "paper"
-        doc_type = "article"
-
-if __name__ == "__main__":
-    Paper.init()
+class Paper(models.Model):
+    Sid = models.CharField(max_length=40)
+    title = models.CharField(max_length=100)
+    year = models.IntegerField()
+    inCitationscount = models.IntegerField()
+    outCitationscount = models.IntegerField()

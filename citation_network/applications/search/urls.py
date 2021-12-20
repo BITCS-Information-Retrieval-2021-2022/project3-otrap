@@ -15,7 +15,7 @@ Including another URLconf
 """
 
 from django.urls import path,re_path
-from applications.search.views import PaperListView
+from .views import PaperListView
 
 urlpatterns = [
     path('search-result/', PaperListView.as_view()),

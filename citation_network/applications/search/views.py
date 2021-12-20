@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from applications.search.models import Paper
-from applications.search.serializers import PaperSerializer
+from .models import Paper
+from .serializers import PaperSerializer
 from rest_framework.mixins import ListModelMixin
 from rest_framework.generics import GenericAPIView
-from elasticsearch import  Elasticsearch
+from elasticsearch import Elasticsearch
 
 # Create your views here.
 
