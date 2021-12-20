@@ -19,6 +19,8 @@ from applications.search import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.homepage),
     path('search/', include('applications.search.urls')),
+    path('relation_graph/', views.relation_graph),
+    path('paper_info/', views.paper_info),
+
 ]
