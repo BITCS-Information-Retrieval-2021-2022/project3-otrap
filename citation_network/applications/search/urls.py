@@ -17,11 +17,12 @@ Including another URLconf
 from django.urls import path,include
 from . import views
 from rest_framework.routers import DefaultRouter
-
-router = DefaultRouter()
-router.register('basic', views.PaperListView)
+#
+# router = DefaultRouter()
+# router.register('basic', views.PaperListView)
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('intensified', views.sort_by_rank)
+    #path('', include(router.urls)),
+    path('basic', views.search.as_view()),
+    path('intensified', views.sort_by_rank),
 ]
