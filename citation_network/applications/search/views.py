@@ -60,6 +60,7 @@ class search(View):
                 }
             }
         )
+        print(response)
         end_time = datetime.now()
         last_seconds = (end_time - start_time).total_seconds()
         total_nums = response["hits"]["total"]
@@ -75,13 +76,13 @@ class search(View):
                     hit_dict["title"] = "".join(hit["highlight"]["title"])
                 else:
                     hit_dict["title"] = hit["_source"]["title"]
-            if "Sid" in hit["_score"]:
+            if "Sid" in hit["_source"]:
                 hit_dict["Sid"] = hit["_source"]["Sid"]
-            if "year" in hit["_score"]:
+            if "year" in hit["_source"]:
                 hit_dict["year"] = hit["_source"]["year"]
-            if "inCitationscount" in hit["_score"]:
+            if "inCitationscount" in hit["_source"]:
                 hit_dict["inCitationscount"] = hit["_source"]["inCitationscount"]
-            if "outCitationscount" in hit["_score"]:
+            if "outCitationscount" in hit["_source"]:
                 hit_dict["outCitationscount"] = hit["_source"]["outCitationscount"]
 
             hit_list.append(hit_dict)
