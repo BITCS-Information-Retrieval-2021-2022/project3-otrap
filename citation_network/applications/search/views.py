@@ -8,6 +8,7 @@ from elasticsearch import Elasticsearch
 from django.http import HttpResponse
 from django.views.generic.base import View
 from datetime import datetime
+from django.http import HttpResponse,JsonResponse
 
 # Create your views here.
 
@@ -27,14 +28,14 @@ class IndexView(View):
 #     def get(self, request):
 #         return self.list(request)
 
-class search(View):
+class retrieval(View):
     """
     搜索显示逻辑
     """
     def get(self, request):
-        key_words = request.GET.get('q', '')  # 接收一个s变量，s包含了输入框的词，以此返回给elasticsearch做分词匹配
+        key_words = request.GET.get('query')  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
         paper_count = int(client.count(index="otrap")["count"])
-        page = request.GET.get("p", "")
+        page = request.GET.get("page")
         try:
             page = int(page)
         except:
@@ -71,32 +72,32 @@ class search(View):
         hit_list = []
         for hit in response['hits']['hits']:
             hit_dict = {}
-            if "highlight" in hit:
-                if "title" in hit["highlight"]:
-                    hit_dict["title"] = "".join(hit["highlight"]["title"])
-                else:
-                    hit_dict["title"] = hit["_source"]["title"]
+            if "title" in hit["_source"]:
+                hit_dict["title"] = hit["_source"]["title"]
             if "Sid" in hit["_source"]:
                 hit_dict["Sid"] = hit["_source"]["Sid"]
             if "year" in hit["_source"]:
-                hit_dict["year"] = hit["_source"]["year"]
-            if "inCitationscount" in hit["_source"]:
-                hit_dict["inCitationscount"] = hit["_source"]["inCitationscount"]
-            if "outCitationscount" in hit["_source"]:
-                hit_dict["outCitationscount"] = hit["_source"]["outCitationscount"]
+                hit_dict["year"] = int(hit["_source"]["year"])
+            if "inCitationsCount" in hit["_source"]:
+                hit_dict["inCitationsCount"] = int(hit["_source"]["inCitationsCount"])
+            if "outCitationsCount" in hit["_source"]:
+                hit_dict["outCitationsCount"] = int(hit["_source"]["outCitationsCount"])
 
             hit_list.append(hit_dict)
-        return render(request, "result.html", {"all_list": hit_list,
-                                               "key_words": key_words,
-                                               "total_nums": total_nums,
-                                               "page_nums": page_nums,
-                                               "last_seconds": last_seconds,
-                                               "page": page,
-                                               "paper_count": paper_count})
+            print(hit_list)
+        # return render(request, "result.html", {"all_list": hit_list,
+        #                                        "key_words": key_words,
+        #                                        "total_nums": total_nums,
+        #                                        "page_nums": page_nums,
+        #                                        "last_seconds": last_seconds,
+        #                                        "page": page,
+        #                                        "paper_count": paper_count})
+        return JsonResponse(hit_list, safe=False)
 
 def relation_graph(request):
 
     return render(request, "index.html")
 
-def sort_by_rank(request):
+def sort_by_rank(request):#按照重要性分数排序
+
     return render(request, 'homepage.html')

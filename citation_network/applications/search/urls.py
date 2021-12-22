@@ -23,6 +23,6 @@ from rest_framework.routers import DefaultRouter
 
 urlpatterns = [
     #path('', include(router.urls)),
-    path('basic', views.search.as_view()),
-    path('intensified', views.sort_by_rank),
+    path('basic/', views.retrieval.as_view(),name="retrieval"),
+    path('intensified/', views.sort_by_rank),
 ]

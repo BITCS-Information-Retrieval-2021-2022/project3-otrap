@@ -63,13 +63,13 @@
     </div><!--End of bd-->
 </div>
 
-<div id="foot">Copyright &copy;projectsedu.com 版权所有  E-mail:admin@projectsedu.com</div>
+<div id="foot">Copyright Otrap版权所有</div>
 </body>
 <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/global.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/pagination.js' %}"></script>
 <script type="text/javascript">
-    var search_url = "{% url 'search' %}"
+    var search_url = "{% url 'retrieval' %}"
 
 	$('.searchList').on('click', '.searchItem', function(){
 		$('.searchList .searchItem').removeClass('current');

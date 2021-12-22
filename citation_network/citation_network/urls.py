@@ -20,7 +20,7 @@ from applications.search import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.IndexView.as_view(),name="index"),
-    path('search/', views.search.as_view(),name="search"),
-    #path('search/', include('applications.search.urls')),
+    #path('search/', views.search.as_view(),name="search"),
+    path('retrieval/', include('applications.search.urls')),
     path('relation_graph/', views.relation_graph),
 ]
