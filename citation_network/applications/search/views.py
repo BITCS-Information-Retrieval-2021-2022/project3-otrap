@@ -8,25 +8,12 @@ from elasticsearch import Elasticsearch
 from django.http import HttpResponse
 from django.views.generic.base import View
 from datetime import datetime
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse, JsonResponse
 
 # Create your views here.
 
 client = Elasticsearch(hosts=['127.0.0.1'])
 #
-class IndexView(View):
-    def get(self, request):
-        return render(request, "index.html")
-#
-# def paperdetail(request, id):
-#     return render(request, 'paperdetail.html')
-
-# class PaperListView(viewsets.ModelViewSet):
-#     queryset = Paper.objects.all()
-#     serializer_class = PaperSerializer
-#
-#     def get(self, request):
-#         return self.list(request)
 
 class retrieval(View):
     """
@@ -34,7 +21,8 @@ class retrieval(View):
     """
     def get(self, request):
         key_words = request.GET.get('query')  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
-        paper_count = int(client.count(index="otrap")["count"])
+        #key_words = 'for'
+        paper_count = int(client.count(index="otrap")["count"])#总的paper数量
         page = request.GET.get("page")
         try:
             page = int(page)
@@ -64,18 +52,19 @@ class retrieval(View):
         print(response)
         end_time = datetime.now()
         last_seconds = (end_time - start_time).total_seconds()
-        total_nums = response["hits"]["total"]
+        result_total = response["hits"]["total"] #检索出来的paper总数
         if (page % 10) > 0:  # 总页数
-            page_nums = int(total_nums / 10) + 1
+            page_nums = int(result_total / 10) + 1
         else:
-            page_nums = int(total_nums / 10)
+            page_nums = int(result_total / 10)
         hit_list = []
         for hit in response['hits']['hits']:
+            print(hit)
             hit_dict = {}
-            if "title" in hit["_source"]:
-                hit_dict["title"] = hit["_source"]["title"]
             if "Sid" in hit["_source"]:
                 hit_dict["Sid"] = hit["_source"]["Sid"]
+            if "title" in hit["_source"]:
+                hit_dict["title"] = hit["_source"]["title"]
             if "year" in hit["_source"]:
                 hit_dict["year"] = int(hit["_source"]["year"])
             if "inCitationsCount" in hit["_source"]:
@@ -85,16 +74,15 @@ class retrieval(View):
 
             hit_list.append(hit_dict)
             print(hit_list)
-        # return render(request, "result.html", {"all_list": hit_list,
-        #                                        "key_words": key_words,
-        #                                        "total_nums": total_nums,
-        #                                        "page_nums": page_nums,
-        #                                        "last_seconds": last_seconds,
-        #                                        "page": page,
-        #                                        "paper_count": paper_count})
-        return JsonResponse(hit_list, safe=False)
 
-def relation_graph(request):
+        return JsonResponse({"paper_list": hit_list,
+                             "page_nums": page_nums,
+                             "last_seconds": last_seconds,
+                             "page": page,
+                             "result_total": result_total
+                             })
+
+def relation_graph(request):#画图
 
     return render(request, "index.html")
 
@@ -135,18 +123,18 @@ def sort_by_rank(request):#按照重要性分数排序
     print(response)
     end_time = datetime.now()
     last_seconds = (end_time - start_time).total_seconds()
-    total_nums = response["hits"]["total"]
+    result_total = response["hits"]["total"]
     if (page % 10) > 0:  # 总页数
-        page_nums = int(total_nums / 10) + 1
+        page_nums = int(result_total / 10) + 1
     else:
-        page_nums = int(total_nums / 10)
+        page_nums = int(result_total / 10)
     hit_list = []
     for hit in response['hits']['hits']:
         hit_dict = {}
-        if "title" in hit["_source"]:
-            hit_dict["title"] = hit["_source"]["title"]
         if "Sid" in hit["_source"]:
             hit_dict["Sid"] = hit["_source"]["Sid"]
+        if "title" in hit["_source"]:
+            hit_dict["title"] = hit["_source"]["title"]
         if "year" in hit["_source"]:
             hit_dict["year"] = int(hit["_source"]["year"])
         if "inCitationsCount" in hit["_source"]:
@@ -158,11 +146,44 @@ def sort_by_rank(request):#按照重要性分数排序
 
         hit_list.append(hit_dict)
         print(hit_list)
-    # return render(request, "result.html", {"all_list": hit_list,
-    #                                        "key_words": key_words,
-    #                                        "total_nums": total_nums,
-    #                                        "page_nums": page_nums,
-    #                                        "last_seconds": last_seconds,
-    #                                        "page": page,
-    #                                        "paper_count": paper_count})
-    return JsonResponse(hit_list, safe=False)
+
+    return JsonResponse({"paper_list": hit_list,
+                        "page_nums": page_nums,
+                        "last_seconds": last_seconds,
+                        "page": page,
+                        "result_total": result_total
+                        })
+
+def paper_info(request):
+    Sid = request.GET.get('sid')
+    #id = 'f6370fe63ff9c7191335c3e5de8d4b6935ae1792'
+    response = client.search(
+        index="otrap",
+        body={
+            'query': {
+                "term": {
+                    "Sid": Sid,
+                }
+            },
+        }
+    )
+    print(response)
+    hit = response['hits']['hits'][0]
+    paper = {}
+    if "Sid" in hit["_source"]:
+        paper["Sid"] = hit["_source"]["Sid"]
+    if "title" in hit["_source"]:
+        paper["title"] = hit["_source"]["title"]
+    if "inCitations" in hit["_source"]:
+        paper["inCitations"] = hit["_source"]["inCitations"].split(",")
+    if "outCitations" in hit["_source"]:
+        paper["outCitations"] = hit["_source"]["outCitations"].split(",")
+    if "year" in hit["_source"]:
+        paper["year"] = int(hit["_source"]["year"])
+    if "inCitationsCount" in hit["_source"]:
+        paper["inCitationsCount"] = int(hit["_source"]["inCitationsCount"])
+    if "outCitationsCount" in hit["_source"]:
+        paper["outCitationsCount"] = int(hit["_source"]["outCitationsCount"])
+    print(paper)
+
+    return JsonResponse(paper, safe=False)

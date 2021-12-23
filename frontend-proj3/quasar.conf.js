@@ -7,6 +7,7 @@
 // https://v1.quasar.dev/quasar-cli/quasar-conf-js
 /* eslint-env node */
 const ESLintPlugin = require('eslint-webpack-plugin')
+const proxy = require('http-proxy-middleware');
 
 module.exports = function (/* ctx */) {
   return {
@@ -73,9 +74,24 @@ module.exports = function (/* ctx */) {
 
     // Full list of options: https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
-      https: false,
+      // https: false,
+      host: 'localhost',
       port: 8080,
-      open: true // opens browser window automatically
+      open: true, // opens browser window automatically
+      proxy: {
+				"/api": {
+					target: "http://127.0.0.1:8000/",
+					changeOrigin: true,
+					pathRewrite: {
+						"^/api": ""
+					}
+				}
+			},
+			headers: {
+				"Access-Controll-Allow-Origin": "*"
+			},
+			hotOnly: false,
+			disableHostCheck: true
     },
 
     // https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework

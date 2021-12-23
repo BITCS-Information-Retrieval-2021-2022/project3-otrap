@@ -70,17 +70,21 @@ export default {
   },
   methods: {
     submit() {
-      this.loadingState = true;
-
-      this.$q.notify({
-        type: "positive",
-        message: this.query,
-        timeout: 1500,
-        position: "top",
-      });
-
-      let url = '/search-result/'+ this.search_type
-      this.$router.push(url);
+      this.$axios.get("/api/paper_info")
+        .then((response) =>{
+          console.log(response.data)
+        })
+      // this.loadingState = true;
+      //
+      // this.$q.notify({
+      //   type: "positive",
+      //   message: this.query,
+      //   timeout: 1500,
+      //   position: "top",
+      // });
+      //
+      // let url = '/search-result/'+ this.search_type
+      // this.$router.push(url);
     },
     onItemClick(choice) {
       this.search_type=choice
