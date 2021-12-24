@@ -21,7 +21,15 @@ export default {
   data() {
     return {
       lorem: "根据重要性分数，节点的大小或颜色应该有所区分.",
-      data: null,
+      data: {
+        Sid: 1,
+        title: "",
+        inCitations: [1, 2],
+        outCitations: [3, 4],
+        year: 2009,
+        inCitationsCount: 1,
+        outCitationsCount: 6,
+      },
     };
   },
   computed: {
