@@ -65,8 +65,6 @@ class retrieval(View):
             #print(hit_list)
 
         return JsonResponse({"paper_list": hit_list,
-                             "last_seconds": last_seconds,
-                             #"page": page,
                              "result_total": result_total
                              })
 
@@ -81,19 +79,22 @@ def relation_graph(request):#画图
         scroll = '1m',
         index='otrap',
     )
-    final_result = []
+    node_list = []
+    links_list = []
     for paper in results:
-        paper_dict={}
+        nodes={}
         if "Sid" in paper["_source"]:
-            paper_dict["Sid"] = paper["_source"]["Sid"]
+            nodes["Sid"] = paper["_source"]["Sid"]
         if "title" in paper["_source"]:
-            paper_dict["title"] = paper["_source"]["title"]
+            nodes["title"] = paper["_source"]["title"]
         if "year" in paper["_source"]:
-            paper_dict["year"] = int(paper["_source"]["year"])
+            nodes["year"] = int(paper["_source"]["year"])
         if "outCitations" in paper["_source"]:
-            print(paper["_source"]["outCitations"])
-            paper_dict["outCitations"] = paper["_source"]["outCitations"]
-        final_result.append(paper_dict)
+            nodes["outCitations"] = paper["_source"]["outCitations"]
+        if "inCitations" in paper["_source"]:
+            nodes["inCitations"] = paper["_source"]["inCitations"]
+
+        #final_result.append(paper_dict)
     # response = client.search(
     #     index="otrap",
     #     scroll='5m',
@@ -120,10 +121,11 @@ def relation_graph(request):#画图
     #         hit_dict["outCitations"] = hit["_source"]["outCitations"].split(",")
     #
     #     hit_list.append(hit_dict)
-    return JsonResponse(final_result, safe=False)
+    #return JsonResponse(final_result, safe=False)
 
 def sort_by_rank(request):#按照重要性分数排序
-    key_words = request.GET.get('query')  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
+    #key_words = request.GET.get('query')  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
+    key_words = 'for'
     paper_count = int(client.count(index="otrap")["count"])
     #page = request.GET.get("page")
     max_query = request.GET.get("max_query")
@@ -145,13 +147,6 @@ def sort_by_rank(request):#按照重要性分数排序
                     "score": "desc"
                 }
             ],
-            "highlight": {  # 词语高亮
-                "pre_tags": ["<span class='keyWord'>"],
-                "post_tags": ["</span>"],
-                "fields": {
-                    "title": {},
-                }
-            }
         }
     )
     #print(response)
@@ -175,7 +170,6 @@ def sort_by_rank(request):#按照重要性分数排序
             hit_dict["score"] = float(hit["_source"]["score"])
 
         hit_list.append(hit_dict)
-        print(hit_list)
 
     return JsonResponse({"paper_list": hit_list,
                         "last_seconds": last_seconds,
