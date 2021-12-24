@@ -1,9 +1,4 @@
 <template>
-  <!-- <q-card>
-      <q-card-section class="q-gutter-sm">
-        <p class="text-h5">retrival result of papaer</p>
-      </q-card-section>
-    </q-card> -->
   <q-table
     :data="tdata"
     :columns="dy_columns"
@@ -44,7 +39,7 @@
     </template>
 
     <template v-slot:body="props">
-      <q-tr :props="props">
+      <q-tr :props="props" @mouseenter="focus_node(props.row.sid)">
         <template v-if="expandAll">
           <q-td key="PaperId" :props="props">
             {{ props.row.sid }}
@@ -111,6 +106,9 @@ export default {
   props: {
     query: {
       type: String,
+    },
+    enableFocus: {
+      type: Boolean,
     },
   },
   data() {
@@ -192,9 +190,12 @@ export default {
     expand_table() {
       this.expandAll = !this.expandAll;
     },
-    // toggleFullscreen() {
-    //   this.expandAll = !this.expandAll;
-    // },
+    focus_node(id) {
+      if (this.enableFocus) {
+        console.log("enableFocus!");
+      }
+      console.log("get:" + id);
+    },
   },
 };
 </script>

@@ -1,14 +1,7 @@
 <template>
   <q-page class="flex flex-center">
     <div class="q-gutter-y-md column" style="width: 40%">
-      <q-input
-        :loading="loadingState"
-        v-model="query"
-        placeholder="Search"
-        debounce="500"
-        bottom-slots
-      >
-
+      <q-input v-model="query" placeholder="Search" debounce="500" bottom-slots>
         <template v-slot:prepend>
           <q-btn-dropdown flat dense>
             <template v-slot:label>
@@ -32,11 +25,11 @@
         </template>
 
         <template v-slot:append>
-          <q-icon name="search" v-show="!loadingState" @click="submit" />
+          <q-icon name="search" @click="submit" />
         </template>
 
         <template v-slot:hint>
-          {{search_hint}}
+          {{ search_hint }}
         </template>
       </q-input>
     </div>
@@ -44,14 +37,11 @@
 </template>
 
 <script>
-import { defineComponent } from "vue";
-
 export default {
   name: "PageIndex",
   data() {
     return {
       query: "",
-      loadingState: false,
       search_type: "graph",
     };
   },
@@ -69,25 +59,21 @@ export default {
     },
   },
   methods: {
-    submit() {
-      this.$axios.get("/api/paper_info")
-        .then((response) =>{
-          console.log(response.data)
-        })
+    async submit() {
       // this.loadingState = true;
-      //
+
       // this.$q.notify({
       //   type: "positive",
       //   message: this.query,
       //   timeout: 1500,
       //   position: "top",
       // });
-      //
-      // let url = '/search-result/'+ this.search_type
-      // this.$router.push(url);
+
+      let url = "/search-result/" + this.search_type;
+      this.$router.push({ path: url, query: { user_query: this.query } });
     },
     onItemClick(choice) {
-      this.search_type=choice
+      this.search_type = choice;
     },
   },
 };

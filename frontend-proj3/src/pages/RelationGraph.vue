@@ -3,7 +3,6 @@
     <!-- <div style="height: 100px" /> -->
     <div class="row justify-center items-start no-wrap">
       <div id="relation_graph" class="my-graph"></div>
-      <!-- style="width: 1200px; height: 1000px" -->
     </div>
   </div>
 </template>
@@ -13,10 +12,10 @@ export default {
   data() {
     return {};
   },
-  mounted: function () {
+  mounted() {
+    let url = "/api/relation_graph?query=" + this.$route.query.user_query;
     var echarts = require("echarts");
-
-    this.graph_render(echarts);
+    this.graph_render(echarts, url);
 
     // this.$store.commit('RelationGraph/setNodeId', '55');
     // console.log(this.$store.state.RelationGraph.nodeId);
@@ -26,7 +25,7 @@ export default {
     // this.toy_model_render(echarts);
   },
   methods: {
-    async graph_render(echarts) {
+    async graph_render(echarts, url) {
       var ROOT_PATH =
         "https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples";
 
@@ -36,9 +35,12 @@ export default {
       let res = await this.$axios.get(
         ROOT_PATH + "/data/asset/data/les-miserables.json"
       );
+      let res2 = await this.$axios.get(url);
       myChart.hideLoading();
+      // console.log(res.data);
+      console.log("show data:");
+      console.log(res2.data);
 
-      //   console.log(res.data);
       var option = this.process_data(res.data);
       myChart.setOption(option);
 
@@ -50,8 +52,12 @@ export default {
           show: node.symbolSize > 30,
         };
       });
-      console.log("show data:");
-      console.log(graph);
+      // console.log("show data:");
+      // console.log(graph);
+      // console.log(graph.links[0]);
+
+      // console.log(graph.nodes[0]);
+      // console.log(graph.nodes[1]);
 
       let option = {
         title: {

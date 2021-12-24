@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh LpR fFf">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="left = !left" />
@@ -22,7 +22,7 @@
       content-class="bg-grey-3"
     >
       <div class="q-pa-sm">
-        <search-table :query="search_query" enableToggle="true" />
+        <search-table :query="search_query" :enableFocus="true" />
       </div>
     </q-drawer>
 

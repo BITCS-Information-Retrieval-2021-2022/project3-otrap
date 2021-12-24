@@ -21,6 +21,7 @@ export default {
   data() {
     return {
       lorem: "根据重要性分数，节点的大小或颜色应该有所区分.",
+      data: null,
     };
   },
   computed: {
@@ -29,6 +30,16 @@ export default {
     },
     nodeId: function () {
       return this.$store.getters["RelationGraph/getNodeId"];
+    },
+  },
+  watch: {
+    nodeId: async function (val, oldVal) {
+      if (val) {
+        let url = "/api/paper_info?sid=" + this.nodeId;
+        let res = await this.$axios.get(url);
+        console.log(res.data);
+        this.data = res.data;
+      }
     },
   },
 };

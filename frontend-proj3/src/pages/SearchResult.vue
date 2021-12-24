@@ -4,10 +4,10 @@
       :data="data"
       :columns="columns"
       :rows-per-page-options="[10, 15, 20]"
-      row-key="sid"
+      row-key="Sid"
       :filter="filter"
     >
-      <template v-slot:top>
+      <template v-slot:top coloum>
         <h5 class="q-pr-sm">{{ table_title }}</h5>
         <q-icon
           :name="toggle_icon"
@@ -18,14 +18,17 @@
 
         <q-space />
         <q-input
-          flat
-          dense
-          debounce="300"
-          label="在结果中查找"
-          v-model="filter"
+          v-model="query"
+          placeholder="Search"
+          debounce="500"
+          bottom-slots
         >
           <template v-slot:append>
-            <q-icon name="search" />
+            <q-icon name="search" @click="submit" />
+          </template>
+
+          <template v-slot:hint>
+            {{ search_hint }}
           </template>
         </q-input>
       </template>
@@ -33,7 +36,7 @@
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td key="PaperId" :props="props">
-            {{ props.row.sid }}
+            {{ props.row.Sid }}
           </q-td>
           <q-td key="Title" :props="props">
             {{ props.row.title }}
@@ -58,7 +61,7 @@ const columns = [
   {
     name: "PaperId",
     label: "标识符",
-    field: "sid",
+    field: "Sid",
     align: "center",
   },
   {
@@ -92,9 +95,10 @@ export default {
     return {
       columns,
       show_es_res: false,
-      loading_state: true,
+      // loading_state: true,
       data: [],
       filter: "",
+      query: "",
     };
   },
   computed: {
@@ -122,51 +126,54 @@ export default {
         return "green";
       }
     },
+    search_hint: function () {
+      return this.query;
+    },
+    retrieval_type: function () {
+      if (this.show_es_res) {
+        return "basic";
+      } else {
+        return "intensified";
+      }
+    },
   },
   async mounted() {
-    let refined_url = "/api/search-result/belif-refined/" + "[query]";
-    // console.log(this.table_title)
+    this.query = this.$route.query.user_query;
+    this.submit();
 
-    // let res = await this.$axios.get(refined_url);
-    // this.data = res.data;
-    this.data = [
-      {
-        sid: "1213.32",
-        title: "Scaphopoda (Bronn, 1862): Work in progress",
-        inCitations: [],
-        outCitations: [],
-        year: 2020,
-        inCitationsCount: 0,
-        outCitationsCount: 3,
-      },
-      {
-        sid: "212.33",
-        title: "Mooda (Bronn, 1862): Work in progress",
-        inCitations: [],
-        outCitations: [],
-        year: 2021,
-        inCitationsCount: 20,
-        outCitationsCount: 3,
-      },
-      {
-        sid: "3231.32",
-        title: "Work in progress",
-        inCitations: [],
-        outCitations: [],
-        year: 2000,
-        inCitationsCount: 0,
-        outCitationsCount: 33,
-      },
-    ];
+    // this.data = [
+    //   {
+    //     sid: "1213.32",
+    //     title: "Scaphopoda (Bronn, 1862): Work in progress",
+    //     inCitations: [],
+    //     outCitations: [],
+    //     year: 2020,
+    //     inCitationsCount: 0,
+    //     outCitationsCount: 3,
+    //   },
+    //   {
+    //     sid: "212.33",
+    //     title: "Mooda (Bronn, 1862): Work in progress",
+    //     inCitations: [],
+    //     outCitations: [],
+    //     year: 2021,
+    //     inCitationsCount: 20,
+    //     outCitationsCount: 3,
+    //   },
+    // ];
   },
   methods: {
-    exchange_result() {
+    async exchange_result() {
       this.show_es_res = !this.show_es_res;
-      if (this.show_es_res) {
-        console.log("/api/es_result/query/get");
-      } else {
-        console.log("/api/belif_refined_result/query/get");
-      }
+
+      this.submit();
+    },
+    async submit() {
+      let res = await this.$axios.get(
+        "/api/retrieval/" + this.retrieval_type + "?query=" + this.query
+      );
+      console.log(res.data);
+      this.data = res.data;
     },
   },
 };
