@@ -66,8 +66,8 @@ class retrieval(View):
                              })
 
 def relation_graph(request):#画图
-    key_words = "for"
-    #key_words = request.GET['query']#从前端获取query
+    #key_words = "for"
+    key_words = request.GET['query']#从前端获取query
     #检索出存在title中存在key_words的结果
     results1 = client.search(
         index="otrap",
@@ -151,8 +151,12 @@ def relation_graph(request):#画图
         nodes.append(node1)#符合query的点
     print(nodes)
     print(links)
+    categories=[]
+    categories.append({"name":"in"})
+    categories.append({"name":"res"})
+    categories.append({"name":"out"})
     return JsonResponse({"nodes":nodes,
-                         "links":links}, safe=False)
+                         "links":links,"categories":categories}, safe=False)
 
 def sort_by_rank(request):#按照重要性分数排序
     key_words = request.GET.get('query')  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
