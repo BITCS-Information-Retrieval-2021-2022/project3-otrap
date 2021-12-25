@@ -98,24 +98,28 @@ const columns = [
     label: "年份",
     field: "year",
     align: "left",
+    sortable: true,
   },
   {
     name: "InCitationsCount",
     label: "被引次数",
     field: "inCitationsCount",
     align: "left",
+    sortable: true,
   },
   {
     name: "OutCitationsCount",
     label: "引文数量",
     field: "outCitationsCount",
     align: "left",
+    sortable: true,
   },
   {
     name: "Score",
     label: "重要性分数",
     field: "score",
     align: "left",
+    sortable: true,
   },
 ];
 
