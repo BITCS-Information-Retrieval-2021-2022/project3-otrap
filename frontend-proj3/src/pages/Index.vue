@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     async submit() {
-      this.$store.commit("GobalSearch/setQuery", this.query);
+      this.$store.commit("GlobalSearch/setQuery", this.query);
       let url = "/search-result/" + this.search_type;
       this.$router.push({ path: url, query: { user_query: this.query } });
     },

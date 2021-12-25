@@ -8,7 +8,6 @@
     :filter="search_filter"
   >
     <template v-slot:top="props" class="row items-center no-wrap">
-      <!-- <div > -->
       <q-input
         class="q-px-md"
         v-model="search_filter"
@@ -25,7 +24,7 @@
         class="q-px-md"
         v-model="dquery"
         placeholder="Search"
-        debounce="500"
+        debounce="300"
         label="新的查询"
         bottom-slots
         v-else
@@ -53,7 +52,6 @@
         "
         class="q-ml-md"
       />
-      <!-- </div> -->
     </template>
 
     <template v-slot:body="props">
@@ -146,6 +144,7 @@ export default {
       search_filter: "",
       search_in_table: false,
       commit_new_query: false,
+      dquery: "",
     };
   },
   computed: {
@@ -177,61 +176,33 @@ export default {
     paperTitle: function () {
       return this.$store.getters["RelationGraph/getNodeTitle"];
     },
-    dquery: function () {
-      return this.query;
+    global_query: function () {
+      return this.$store.getters["GlobalGraph/getQuery"];
     },
   },
   watch: {
     dquery: async function (val, oldVal) {
       if (val) {
+        // console.log("detected");
         this.commit_new_query = true;
+        // this.submit();
       }
     },
   },
   async mounted() {
-    // this.dquery = this.query;
-    // let refined_url = "/api/search-result/belif-refined/" + "[query]";
-    // let res = await this.$axios.get(refined_url);
-    // this.data = res.data;
-    // this.data_intensified = [
-    //   {
-    //     sid: "1213.32",
-    //     title: "Scaphopoda (Bronn, 1862): Work in progress",
-    //     inCitations: [],
-    //     outCitations: [],
-    //     year: 2020,
-    //     inCitationsCount: 0,
-    //     outCitationsCount: 3,
-    //   },
-    //   {
-    //     sid: "212.33",
-    //     title: "Mooda (Bronn, 1862): Work in progress",
-    //     inCitations: [],
-    //     outCitations: [],
-    //     year: 2021,
-    //     inCitationsCount: 20,
-    //     outCitationsCount: 3,
-    //   },
-    //   {
-    //     sid: "3231.32",
-    //     title: "Work in progress",
-    //     inCitations: [],
-    //     outCitations: [],
-    //     year: 2000,
-    //     inCitationsCount: 0,
-    //     outCitationsCount: 33,
-    //   },
-    // ];
+    this.dquery = this.query; // props to data
+    this.submit();
+    console.log(this.global_query);
   },
   methods: {
     expand_table() {
       this.expandAll = !this.expandAll;
     },
     focus_node(id) {
-      if (this.enableFocus) {
-        console.log("enableFocus!");
-      }
-      console.log("get:" + id);
+      // if (this.enableFocus) {
+      //   console.log("enableFocus!");
+      // }
+      // console.log("get:" + id);
     },
     shift_search_type() {
       this.search_in_table = !this.search_in_table;
@@ -240,12 +211,14 @@ export default {
     async submit() {
       this.$q.loading.show();
       let url = "/api/retrieval/intensified?query=" + this.dquery;
-      let num = 100;
+      let num = 20;
 
       if (this.data_intensified.length == 0 || this.commit_new_query) {
         console.log(url);
 
         let res = await this.$axios.get(url);
+        console.log("show table data");
+        console.log(res.data);
         this.data_intensified = res.data.paper_list;
         this.data_intensified.forEach((nd) => {
           if (nd.title.length > num) {
@@ -253,6 +226,12 @@ export default {
           }
         });
         this.commit_new_query = false;
+        this.$store.commit(
+          "GlobalSearch/setFirstNodeSid",
+          this.data_intensified[0].Sid
+        );
+        // console.log(this.data_intensified[0].Sid);
+        // console.log(this.$store.getters["GlobalSearch/getFirstNodeSid"]);
       }
       this.$q.loading.hide();
     },

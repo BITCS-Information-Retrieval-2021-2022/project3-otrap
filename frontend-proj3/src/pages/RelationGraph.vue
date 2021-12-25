@@ -18,8 +18,7 @@ export default {
     // this.graph_render(echarts, url);
 
     this.graph_render3(echarts, url);
-    // toy model
-    // this.toy_model_render(echarts);    // 点击 “话题分析” 添加节点
+    // this.toy_model_render(echarts); // 点击 “话题分析” 添加节点
   },
   methods: {
     // template 1
@@ -119,8 +118,8 @@ export default {
           if (params.dataType == "node") {
             console.log("show click node");
             console.log(params.data);
-            this.$store.commit("RelationGraph/setNodeId", params.data.id);
-            this.$store.commit("RelationGraph/setNodeTitle", params.data.name);
+            this.$store.commit("RelationGraph/setNodeId", params.data.Sid);
+            // this.$store.commit("RelationGraph/setNodeTitle", params.data.name);
             // console.log(this.$store.state.RelationGraph.nodeId)
             // console.log(this.$store.getters["RelationGraph/getNodeId"]);
           } else if (params.dataType == "edge") {
@@ -138,22 +137,16 @@ export default {
       var myChart = echarts.init(document.getElementById("relation_graph"));
       myChart.showLoading();
 
-      // var ROOT_PATH =
-      //   "https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples";
-      // let res = await this.$axios.get(
-      //   ROOT_PATH + "/data/asset/data/webkit-dep.json"
-      // );
       console.log(url);
       let res = await this.$axios.get(url);
 
       myChart.hideLoading();
-      
+
       console.log("show graph data:");
       console.log(res.data);
 
       let webkitDep = res.data;
-
-      // map_idx(webkitDep.nodes, webkitDep.links);
+      // preprocess
       var dict = {};
       webkitDep.nodes.map(function (node, idx) {
         node.id = idx;
@@ -162,7 +155,6 @@ export default {
       webkitDep.nodes.forEach(function (node) {
         dict[node.Sid] = node.id;
       });
-
       webkitDep.links.map(function (node) {
         node.source = dict[node.source];
         node.target = dict[node.target];
@@ -481,17 +473,6 @@ export default {
         }
       });
     },
-    // map_idx(nodes, links) {
-    //   var dict = {};
-    //   nodes.forEach(function (node) {
-    //     dict[node.Sid] = node.id;
-    //   });
-
-    //   links.map(function (node) {
-    //     node.source = dict[node.source];
-    //     node.target = dict[node.target];
-    //   });
-    // },
   },
 };
 </script>

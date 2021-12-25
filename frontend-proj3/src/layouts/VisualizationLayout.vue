@@ -59,6 +59,7 @@ export default {
   },
   computed: {
     search_query: function () {
+      console.log("query:" + this.$store.getters["GlobalSearch/getQuery"]);
       return this.$store.getters["GlobalSearch/getQuery"];
     },
   },
