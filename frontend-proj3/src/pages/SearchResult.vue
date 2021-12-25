@@ -17,19 +17,38 @@
         />
 
         <q-space />
+        <q-btn
+          flat
+          rounded
+          color="secondary"
+          icon="eva-repeat-outline"
+          @click="shift_search_type"
+        />
         <q-input
+          class="q-px-md"
+          v-model="filter"
+          flat
+          debounce="300"
+          label="在结果中查找"
+          style="width: 300px"
+          v-if="search_in_table"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+        <q-input
+          class="q-px-md"
           v-model="query"
           placeholder="Search"
           debounce="500"
+          label="新的查询"
           bottom-slots
           style="width: 300px"
+          v-else
         >
           <template v-slot:append>
             <q-icon name="search" @click="submit" />
-          </template>
-
-          <template v-slot:hint>
-            {{ search_hint }}
           </template>
         </q-input>
       </template>
@@ -109,6 +128,8 @@ export default {
       data_intensified: [],
       filter: "",
       query: "",
+      search_in_table: false,
+      commit_new_query: false,
     };
   },
   computed: {
@@ -136,9 +157,6 @@ export default {
         return "green";
       }
     },
-    search_hint: function () {
-      return this.query;
-    },
     retrieval_type: function () {
       if (this.show_es_res) {
         return "basic";
@@ -151,6 +169,13 @@ export default {
         return this.data_basic;
       } else {
         return this.data_intensified;
+      }
+    },
+  },
+  watch: {
+    query: async function (val, oldVal) {
+      if (val) {
+        this.commit_new_query = true;
       }
     },
   },
@@ -170,9 +195,12 @@ export default {
         "/api/retrieval/" + this.retrieval_type + "?query=" + this.query;
       let num = 100;
 
-      console.log(url);
+      if (
+        this.retrieval_type == "basic" &&
+        (this.data_basic.length == 0 || this.commit_new_query)
+      ) {
+        console.log(url);
 
-      if (this.retrieval_type == "basic" && this.data_basic.length == 0) {
         let res = await this.$axios.get(url);
         this.data_basic = res.data.paper_list;
         this.data_basic.forEach((nd) => {
@@ -180,10 +208,13 @@ export default {
             nd.title = nd.title.substr(0, num) + "...";
           }
         });
+        this.commit_new_query = false;
       } else if (
         this.retrieval_type == "intensified" &&
-        this.data_intensified.length == 0
+        (this.data_intensified.length == 0 || this.commit_new_query)
       ) {
+        console.log(url);
+
         let res = await this.$axios.get(url);
         this.data_intensified = res.data.paper_list;
         this.data_intensified.forEach((nd) => {
@@ -191,10 +222,13 @@ export default {
             nd.title = nd.title.substr(0, num) + "...";
           }
         });
+        this.commit_new_query = false;
       }
       this.$q.loading.hide();
-      // console.log("show data of type " + this.retrieval_type);
-      // console.log(res.data.paper_list);
+    },
+    shift_search_type() {
+      this.search_in_table = !this.search_in_table;
+      this.filter = "";
     },
   },
 };
