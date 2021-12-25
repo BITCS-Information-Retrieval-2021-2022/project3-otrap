@@ -23,7 +23,8 @@ class retrieval(View):
         key_words = request.GET['query']  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
         paper_count = int(client.count(index="otrap")["count"])#总的paper数量
         #page = request.GET.get("page")
-        max_query = request.GET['max_query']
+        #max_query = request.GET['max_query']
+        max_query = 100
         if not max_query:
             max_query=100
         start_time = datetime.now()
@@ -39,7 +40,7 @@ class retrieval(View):
                 "size": max_query,
             }
         )
-        print(response)
+        #print(response)
         end_time = datetime.now()
         last_seconds = (end_time - start_time).total_seconds()
         result_total = response["hits"]["total"] #检索出来的paper总数
@@ -59,53 +60,111 @@ class retrieval(View):
                 hit_dict["outCitationsCount"] = int(hit["_source"]["outCitationsCount"])
 
             hit_list.append(hit_dict)
-            #print(hit_list)
-
+        #print(hit_list)
         return JsonResponse({"paper_list": hit_list,
                              "result_total": result_total
                              })
 
 def relation_graph(request):#画图
-    results = helpers.scan(
-        client=client,
-        query={
+    #key_words = "for"
+    key_words = request.GET['query']#从前端获取query
+    #检索出存在title中存在key_words的结果
+    results1 = client.search(
+        index="otrap",
+        body={
             'query': {
-             "match_all": {}
-            }
-        },
-        scroll = '1m',
-        index='otrap',
+                "multi_match": {
+                    "query": key_words,
+                    "fields": ["title"]
+                }
+            },
+            "size": 100,
+        }
     )
-    nodes = []
-    links = []
-    for paper in results:
-        node={}
+    nodes = []#检索出的所有点集
+    links_initial = []#第一次检索出的边
+    links = []#最后处理后的边
+    for paper1 in results1["hits"]["hits"]:
+        node1={}
         link={}
-        if "Sid" in paper["_source"]:
-            node["Sid"] = paper["_source"]["Sid"]
-            link["source"] = paper["_source"]["Sid"]
-        if "title" in paper["_source"]:
-            node["title"] = paper["_source"]["title"]
-        if "year" in paper["_source"]:
-            node["year"] = int(paper["_source"]["year"])
-        if "outCitations" in paper["_source"]:
-            node["outCitations"] = paper["_source"]["outCitations"]
-            link["target"] = paper["_source"]["outCitations"]
-        if "inCitations" in paper["_source"]:
-            node["inCitations"] = paper["_source"]["inCitations"]
-        if "score" in paper["_source"]:
-            node["score"] = paper["_source"]["score"]
-        nodes.append(node)
-        links.append(link)
+        if "Sid" in paper1["_source"]:
+            node1["Sid"] = paper1["_source"]["Sid"]
+        if "title" in paper1["_source"]:
+            node1["title"] = paper1["_source"]["title"]
+        node1["category"] = 1
+        if "outCitations" in paper1["_source"]:
+            for target in paper1["_source"]["outCitations"]:
+                if target:
+                    results2=client.search(
+                        index="otrap",
+                        body={
+                            "query": {
+                                "term": {
+                                    "Sid": target,
+                                }
+                            },
+                        }
+                    )
+                    if results2["hits"]["total"] != 0:
+                        node2={}
+                        paper2=results2["hits"]["hits"][0]
+                        if "Sid" in paper2["_source"]:
+                            node2["Sid"] = paper2["_source"]["Sid"]
+                        if "title" in paper2["_source"]:
+                            node2["title"] = paper2["_source"]["title"]
+                        node2["category"] = 2
+                        if "score" in paper2["_source"]:
+                            node2["score"] = paper2["_source"]["score"]
+                        link["source"] = paper1["_source"]["Sid"]
+                        link["target"] = target
+                        nodes.append(node2)
+                        links.append(link)#可以形成边
+        if "inCitations" in paper1["_source"]:
+            for source in paper1["_source"]["inCitations"]:
+                if source:
+                    results2 = client.search(
+                        index="otrap",
+                        body={
+                            "query": {
+                                "term": {
+                                    "Sid": source,
+                                }
+                            },
+                        }
+                    )
+                    if results2["hits"]["total"] != 0:
+                        node2 = {}
+                        paper2 = results2["hits"]["hits"][0]
+                        if "Sid" in paper2["_source"]:
+                            node2["Sid"] = paper2["_source"]["Sid"]
+                        if "title" in paper2["_source"]:
+                            node2["title"] = paper2["_source"]["title"]
+                        node2["category"] = 0
+                        if "score" in paper2["_source"]:
+                            node2["score"] = paper2["_source"]["score"]
+                        link["source"] = source
+                        link["target"] = paper1["_source"]["Sid"]
+                        nodes.append(node2)
+                        links.append(link)  # 可以形成边
+        if "score" in paper1["_source"]:
+            node1["score"] = paper1["_source"]["score"]
+        nodes.append(node1)#符合query的点
+    print(nodes)
+    print(links)
+    categories=[]
+    categories.append({"name":"in"})
+    categories.append({"name":"res"})
+    categories.append({"name":"out"})
     return JsonResponse({"nodes":nodes,
-                         "links":links}, safe=False)
+                         "links":links,"categories":categories}, safe=False)
 
 def sort_by_rank(request):#按照重要性分数排序
-    #key_words = request.GET.get('query')  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
-    key_words = 'for'
+    key_words = request.GET.get('query')  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
+    #key_words = 'for'
     paper_count = int(client.count(index="otrap")["count"])
     #page = request.GET.get("page")
-    max_query = request.GET.get("max_query")
+    #max_query = request.GET.get("max_query")
+    max_query = 100
     if not max_query:
         max_query = 100
     start_time = datetime.now()
@@ -154,7 +213,7 @@ def sort_by_rank(request):#按照重要性分数排序
                         })
 
 def paper_info(request):
-    Sid = request.GET.get('sid')
+    Sid = request.GET.get('Sid')
     #Sid = 'f6370fe63ff9c7191335c3e5de8d4b6935ae1792'
     response = client.search(
         index="otrap",
@@ -186,3 +245,6 @@ def paper_info(request):
     #print(paper)
 
     return JsonResponse(paper, safe=False)
+
+def index(request):
+    return HttpResponse("hello")
