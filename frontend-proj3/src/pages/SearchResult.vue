@@ -3,7 +3,7 @@
     <q-table
       :data="data"
       :columns="columns"
-      :rows-per-page-options="[10, 15, 20]"
+      :rows-per-page-options="[15, 30, 60]"
       row-key="Sid"
       :filter="filter"
     >
@@ -22,6 +22,7 @@
           placeholder="Search"
           debounce="500"
           bottom-slots
+          style="width: 300px"
         >
           <template v-slot:append>
             <q-icon name="search" @click="submit" />
@@ -49,6 +50,9 @@
           </q-td>
           <q-td key="OutCitationsCount" :props="props">
             {{ props.row.outCitationsCount }}
+          </q-td>
+          <q-td key="Score" :props="props">
+            {{ props.row.score }}
           </q-td>
         </q-tr>
       </template>
@@ -88,6 +92,12 @@ const columns = [
     field: "outCitationsCount",
     align: "left",
   },
+  {
+    name: "Score",
+    label: "重要性分数",
+    field: "score",
+    align: "left",
+  },
 ];
 
 export default {
@@ -95,8 +105,8 @@ export default {
     return {
       columns,
       show_es_res: false,
-      // loading_state: true,
-      data: [],
+      data_basic: [],
+      data_intensified: [],
       filter: "",
       query: "",
     };
@@ -136,31 +146,17 @@ export default {
         return "intensified";
       }
     },
+    data: function () {
+      if (this.show_es_res) {
+        return this.data_basic;
+      } else {
+        return this.data_intensified;
+      }
+    },
   },
   async mounted() {
     this.query = this.$route.query.user_query;
     this.submit();
-
-    // this.data = [
-    //   {
-    //     sid: "1213.32",
-    //     title: "Scaphopoda (Bronn, 1862): Work in progress",
-    //     inCitations: [],
-    //     outCitations: [],
-    //     year: 2020,
-    //     inCitationsCount: 0,
-    //     outCitationsCount: 3,
-    //   },
-    //   {
-    //     sid: "212.33",
-    //     title: "Mooda (Bronn, 1862): Work in progress",
-    //     inCitations: [],
-    //     outCitations: [],
-    //     year: 2021,
-    //     inCitationsCount: 20,
-    //     outCitationsCount: 3,
-    //   },
-    // ];
   },
   methods: {
     async exchange_result() {
@@ -169,11 +165,36 @@ export default {
       this.submit();
     },
     async submit() {
-      let res = await this.$axios.get(
-        "/api/retrieval/" + this.retrieval_type + "?query=" + this.query
-      );
-      console.log(res.data);
-      this.data = res.data;
+      this.$q.loading.show();
+      let url =
+        "/api/retrieval/" + this.retrieval_type + "?query=" + this.query;
+      let num = 100;
+
+      console.log(url);
+
+      if (this.retrieval_type == "basic" && this.data_basic.length == 0) {
+        let res = await this.$axios.get(url);
+        this.data_basic = res.data.paper_list;
+        this.data_basic.forEach((nd) => {
+          if (nd.title.length > num) {
+            nd.title = nd.title.substr(0, num) + "...";
+          }
+        });
+      } else if (
+        this.retrieval_type == "intensified" &&
+        this.data_intensified.length == 0
+      ) {
+        let res = await this.$axios.get(url);
+        this.data_intensified = res.data.paper_list;
+        this.data_intensified.forEach((nd) => {
+          if (nd.title.length > num) {
+            nd.title = nd.title.substr(0, num) + "...";
+          }
+        });
+      }
+      this.$q.loading.hide();
+      // console.log("show data of type " + this.retrieval_type);
+      // console.log(res.data.paper_list);
     },
   },
 };

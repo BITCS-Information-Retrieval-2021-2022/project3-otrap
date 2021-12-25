@@ -42,7 +42,7 @@ export default {
   data() {
     return {
       query: "",
-      search_type: "graph",
+      search_type: "table",
     };
   },
   computed: {

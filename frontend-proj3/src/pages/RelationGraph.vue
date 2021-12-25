@@ -17,7 +17,7 @@ export default {
     var echarts = require("echarts");
     // this.graph_render(echarts, url);
 
-    this.graph_render3(echarts);
+    this.graph_render3(echarts, url);
     // toy model
     // this.toy_model_render(echarts);    // 点击 “话题分析” 添加节点
   },
@@ -134,17 +134,21 @@ export default {
       );
     },
     // template 3
-    async graph_render3(echarts) {
+    async graph_render3(echarts, url) {
       var myChart = echarts.init(document.getElementById("relation_graph"));
       myChart.showLoading();
-      var ROOT_PATH =
-        "https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples";
-      let res = await this.$axios.get(
-        ROOT_PATH + "/data/asset/data/webkit-dep.json"
-      );
+
+      // var ROOT_PATH =
+      //   "https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples";
+      // let res = await this.$axios.get(
+      //   ROOT_PATH + "/data/asset/data/webkit-dep.json"
+      // );
+      let res = await this.$axios.get(url);
+
       myChart.hideLoading();
-      console.log("show data:");
+      console.log("show graph data:");
       console.log(res.data);
+
       let webkitDep = res.data;
       var option = {
         legend: {
