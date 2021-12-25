@@ -4,7 +4,7 @@
 安装 Quasar CLI，详见：http://www.quasarchs.com/quasar-cli/installation#introduction
 
 
-# 技术转移文档（`篇幅限制的都写了"详见参考"`）
+# 代码说明（`篇幅限制的都写了"详见参考"`）
 代码目录结构说明：
 
 详见：http://www.quasarchs.com/quasar-cli/directory-structure#introduction
