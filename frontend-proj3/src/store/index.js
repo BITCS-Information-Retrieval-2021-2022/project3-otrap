@@ -3,6 +3,8 @@ import Vuex from 'vuex'
 
 // import example from './module-example'
 import RelationGraph from "./RelationGraph";
+import GlobalSearch from "./GlobalSearch";
+
 
 Vue.use(Vuex)
 
@@ -19,7 +21,8 @@ export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
       // example
-      RelationGraph
+      RelationGraph,
+      GlobalSearch
     },
 
     // enable strict mode (adds overhead!)

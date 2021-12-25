@@ -1,41 +1,59 @@
 <template>
   <q-table
-    :data="tdata"
+    :data="data_intensified"
     :columns="dy_columns"
     :title="table_title"
-    :rows-per-page-options="[10, 15, 20]"
+    :rows-per-page-options="[50, 100]"
     :row-key="dy_sid"
     :filter="search_filter"
   >
-    <template v-slot:top="props">
-      <div class="column items-center">
-        <p class="text-h5">Title:{{ paperTitle }}</p>
+    <template v-slot:top="props" class="row items-center no-wrap">
+      <!-- <div > -->
+      <q-input
+        class="q-px-md"
+        v-model="search_filter"
+        flat
+        debounce="300"
+        label="在结果中查找"
+        v-if="search_in_table"
+      >
+        <template v-slot:append>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+      <q-input
+        class="q-px-md"
+        v-model="dquery"
+        placeholder="Search"
+        debounce="500"
+        label="新的查询"
+        bottom-slots
+        v-else
+      >
+        <template v-slot:append>
+          <q-icon name="search" @click="submit" />
+        </template>
+      </q-input>
 
-        <div class="row q-gutter-x-md q-gutter-y-xl">
-          <q-space />
-          <q-input
-            flat
-            debounce="300"
-            label="在结果中查找"
-            v-model="search_filter"
-          >
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
-          <q-btn
-            flat
-            round
-            dense
-            :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-            @click="
-              props.toggleFullscreen();
-              expand_table();
-            "
-            class="q-ml-md"
-          />
-        </div>
-      </div>
+      <q-btn
+        flat
+        rounded
+        color="secondary"
+        icon="eva-repeat-outline"
+        @click="shift_search_type"
+      />
+      <q-btn
+        flat
+        round
+        dense
+        :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+        @click="
+          props.toggleFullscreen();
+          expand_table();
+        "
+        class="q-ml-md"
+      />
+      <!-- </div> -->
     </template>
 
     <template v-slot:body="props">
@@ -69,7 +87,7 @@ const columns = [
   {
     name: "PaperId",
     label: "标识符",
-    field: "sid",
+    field: "Sid",
     align: "center",
   },
   {
@@ -99,6 +117,13 @@ const columns = [
     align: "left",
     sortable: true,
   },
+  {
+    name: "Score",
+    label: "重要性分数",
+    field: "score",
+    align: "left",
+    sortable: true,
+  },
 ];
 
 export default {
@@ -116,9 +141,11 @@ export default {
       columns,
       show_es_res: false,
       loading_state: true,
-      tdata: [],
+      data_intensified: [],
       expandAll: false,
       search_filter: "",
+      search_in_table: false,
+      commit_new_query: false,
     };
   },
   computed: {
@@ -150,41 +177,51 @@ export default {
     paperTitle: function () {
       return this.$store.getters["RelationGraph/getNodeTitle"];
     },
+    dquery: function () {
+      return this.query;
+    },
+  },
+  watch: {
+    dquery: async function (val, oldVal) {
+      if (val) {
+        this.commit_new_query = true;
+      }
+    },
   },
   async mounted() {
-    let refined_url = "/api/search-result/belif-refined/" + "[query]";
-
+    // this.dquery = this.query;
+    // let refined_url = "/api/search-result/belif-refined/" + "[query]";
     // let res = await this.$axios.get(refined_url);
     // this.data = res.data;
-    this.tdata = [
-      {
-        sid: "1213.32",
-        title: "Scaphopoda (Bronn, 1862): Work in progress",
-        inCitations: [],
-        outCitations: [],
-        year: 2020,
-        inCitationsCount: 0,
-        outCitationsCount: 3,
-      },
-      {
-        sid: "212.33",
-        title: "Mooda (Bronn, 1862): Work in progress",
-        inCitations: [],
-        outCitations: [],
-        year: 2021,
-        inCitationsCount: 20,
-        outCitationsCount: 3,
-      },
-      {
-        sid: "3231.32",
-        title: "Work in progress",
-        inCitations: [],
-        outCitations: [],
-        year: 2000,
-        inCitationsCount: 0,
-        outCitationsCount: 33,
-      },
-    ];
+    // this.data_intensified = [
+    //   {
+    //     sid: "1213.32",
+    //     title: "Scaphopoda (Bronn, 1862): Work in progress",
+    //     inCitations: [],
+    //     outCitations: [],
+    //     year: 2020,
+    //     inCitationsCount: 0,
+    //     outCitationsCount: 3,
+    //   },
+    //   {
+    //     sid: "212.33",
+    //     title: "Mooda (Bronn, 1862): Work in progress",
+    //     inCitations: [],
+    //     outCitations: [],
+    //     year: 2021,
+    //     inCitationsCount: 20,
+    //     outCitationsCount: 3,
+    //   },
+    //   {
+    //     sid: "3231.32",
+    //     title: "Work in progress",
+    //     inCitations: [],
+    //     outCitations: [],
+    //     year: 2000,
+    //     inCitationsCount: 0,
+    //     outCitationsCount: 33,
+    //   },
+    // ];
   },
   methods: {
     expand_table() {
@@ -195,6 +232,29 @@ export default {
         console.log("enableFocus!");
       }
       console.log("get:" + id);
+    },
+    shift_search_type() {
+      this.search_in_table = !this.search_in_table;
+      this.search_filter = "";
+    },
+    async submit() {
+      this.$q.loading.show();
+      let url = "/api/retrieval/intensified?query=" + this.dquery;
+      let num = 100;
+
+      if (this.data_intensified.length == 0 || this.commit_new_query) {
+        console.log(url);
+
+        let res = await this.$axios.get(url);
+        this.data_intensified = res.data.paper_list;
+        this.data_intensified.forEach((nd) => {
+          if (nd.title.length > num) {
+            nd.title = nd.title.substr(0, num) + "...";
+          }
+        });
+        this.commit_new_query = false;
+      }
+      this.$q.loading.hide();
     },
   },
 };

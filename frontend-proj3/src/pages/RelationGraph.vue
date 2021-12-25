@@ -143,16 +143,35 @@ export default {
       // let res = await this.$axios.get(
       //   ROOT_PATH + "/data/asset/data/webkit-dep.json"
       // );
+      console.log(url);
       let res = await this.$axios.get(url);
 
       myChart.hideLoading();
+      
       console.log("show graph data:");
       console.log(res.data);
 
       let webkitDep = res.data;
+
+      // map_idx(webkitDep.nodes, webkitDep.links);
+      var dict = {};
+      webkitDep.nodes.map(function (node, idx) {
+        node.id = idx;
+        return node;
+      });
+      webkitDep.nodes.forEach(function (node) {
+        dict[node.Sid] = node.id;
+      });
+
+      webkitDep.links.map(function (node) {
+        node.source = dict[node.source];
+        node.target = dict[node.target];
+        return node;
+      });
+
       var option = {
         legend: {
-          data: ["HTMLElement", "WebGL", "SVG", "CSS", "Other"],
+          data: ["in", "res", "out"],
         },
         series: [
           {
@@ -164,10 +183,7 @@ export default {
               formatter: "{b}",
             },
             draggable: true,
-            data: webkitDep.nodes.map(function (node, idx) {
-              node.id = idx;
-              return node;
-            }),
+            data: webkitDep.nodes,
             categories: webkitDep.categories,
             force: {
               edgeLength: 5,
@@ -465,6 +481,17 @@ export default {
         }
       });
     },
+    // map_idx(nodes, links) {
+    //   var dict = {};
+    //   nodes.forEach(function (node) {
+    //     dict[node.Sid] = node.id;
+    //   });
+
+    //   links.map(function (node) {
+    //     node.source = dict[node.source];
+    //     node.target = dict[node.target];
+    //   });
+    // },
   },
 };
 </script>

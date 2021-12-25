@@ -55,9 +55,14 @@ export default {
     return {
       left: false,
       right: false,
-      search_query: "",
     };
   },
+  computed: {
+    search_query: function () {
+      return this.$store.getters["GlobalSearch/getQuery"];
+    },
+  },
+  watch: {},
   methods: {
     toHomePage() {
       this.$router.push("/");

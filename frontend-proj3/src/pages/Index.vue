@@ -42,7 +42,7 @@ export default {
   data() {
     return {
       query: "",
-      search_type: "table",
+      search_type: "graph",
     };
   },
   computed: {
@@ -60,15 +60,7 @@ export default {
   },
   methods: {
     async submit() {
-      // this.loadingState = true;
-
-      // this.$q.notify({
-      //   type: "positive",
-      //   message: this.query,
-      //   timeout: 1500,
-      //   position: "top",
-      // });
-
+      this.$store.commit("GobalSearch/setQuery", this.query);
       let url = "/search-result/" + this.search_type;
       this.$router.push({ path: url, query: { user_query: this.query } });
     },

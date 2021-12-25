@@ -44,9 +44,9 @@ export default {
     nodeId: async function (val, oldVal) {
       if (val) {
         let url = "/api/paper_info?sid=" + this.nodeId;
-        let res = await this.$axios.get(url);
-        console.log(res.data);
-        this.data = res.data;
+        // let res = await this.$axios.get(url);
+        // console.log(res.data);
+        // this.data = res.data;
       }
     },
   },
