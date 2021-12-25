@@ -15,16 +15,14 @@ export default {
   mounted() {
     let url = "/api/relation_graph?query=" + this.$route.query.user_query;
     var echarts = require("echarts");
-    this.graph_render(echarts, url);
+    // this.graph_render(echarts, url);
 
-    // this.$store.commit('RelationGraph/setNodeId', '55');
-    // console.log(this.$store.state.RelationGraph.nodeId);
-    // console.log(this.$store.getters['RelationGraph/getNodeId'])
+    this.graph_render3(echarts);
     // toy model
-    // 点击 “话题分析” 添加节点
-    // this.toy_model_render(echarts);
+    // this.toy_model_render(echarts);    // 点击 “话题分析” 添加节点
   },
   methods: {
+    // template 1
     async graph_render(echarts, url) {
       var ROOT_PATH =
         "https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples";
@@ -135,7 +133,52 @@ export default {
         }.bind(this)
       );
     },
-    // toy model
+    // template 3
+    async graph_render3(echarts) {
+      var myChart = echarts.init(document.getElementById("relation_graph"));
+      myChart.showLoading();
+      var ROOT_PATH =
+        "https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples";
+      let res = await this.$axios.get(
+        ROOT_PATH + "/data/asset/data/webkit-dep.json"
+      );
+      myChart.hideLoading();
+      console.log("show data:");
+      console.log(res.data);
+      let webkitDep = res.data;
+      var option = {
+        legend: {
+          data: ["HTMLElement", "WebGL", "SVG", "CSS", "Other"],
+        },
+        series: [
+          {
+            type: "graph",
+            layout: "force",
+            animation: false,
+            label: {
+              position: "right",
+              formatter: "{b}",
+            },
+            draggable: true,
+            data: webkitDep.nodes.map(function (node, idx) {
+              node.id = idx;
+              return node;
+            }),
+            categories: webkitDep.categories,
+            force: {
+              edgeLength: 5,
+              repulsion: 20,
+              gravity: 0.2,
+            },
+            edges: webkitDep.links,
+          },
+        ],
+      };
+
+      option && myChart.setOption(option);
+      this.manipulate_data(myChart);
+    },
+    // toy template
     toy_model_render(echarts) {
       var myChart = echarts.init(document.getElementById("relation_graph"));
       var option = {
