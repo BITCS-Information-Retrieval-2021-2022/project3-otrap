@@ -21,9 +21,6 @@ class retrieval(View):
     """
     def get(self, request):
         key_words = request.GET['query']  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
-        print(key_words)
-        key_words = 'for'
-        print(key_words)
         paper_count = int(client.count(index="otrap")["count"])#总的paper数量
         #page = request.GET.get("page")
         max_query = request.GET['max_query']
@@ -79,49 +76,29 @@ def relation_graph(request):#画图
         scroll = '1m',
         index='otrap',
     )
-    node_list = []
-    links_list = []
+    nodes = []
+    links = []
     for paper in results:
-        nodes={}
+        node={}
+        link={}
         if "Sid" in paper["_source"]:
-            nodes["Sid"] = paper["_source"]["Sid"]
+            node["Sid"] = paper["_source"]["Sid"]
+            link["source"] = paper["_source"]["Sid"]
         if "title" in paper["_source"]:
-            nodes["title"] = paper["_source"]["title"]
+            node["title"] = paper["_source"]["title"]
         if "year" in paper["_source"]:
-            nodes["year"] = int(paper["_source"]["year"])
+            node["year"] = int(paper["_source"]["year"])
         if "outCitations" in paper["_source"]:
-            nodes["outCitations"] = paper["_source"]["outCitations"]
+            node["outCitations"] = paper["_source"]["outCitations"]
+            link["target"] = paper["_source"]["outCitations"]
         if "inCitations" in paper["_source"]:
-            nodes["inCitations"] = paper["_source"]["inCitations"]
-
-        #final_result.append(paper_dict)
-    # response = client.search(
-    #     index="otrap",
-    #     scroll='5m',
-    #     body={
-    #         'query': {
-    #             "match_all": { }
-    #         }
-    #     }
-    # )
-    #results = response['hits']['hits']
-    #total = response['hits']['total']
-
-    # hit_list = []
-    # for hit in response['hits']['hits']:
-    #     #print(hit)
-    #     hit_dict = {}
-    #     if "Sid" in hit["_source"]:
-    #         hit_dict["Sid"] = hit["_source"]["Sid"]
-    #     if "title" in hit["_source"]:
-    #         hit_dict["title"] = hit["_source"]["title"]
-    #     if "year" in hit["_source"]:
-    #         hit_dict["year"] = int(hit["_source"]["year"])
-    #     if "outCitations" in hit["_source"]:
-    #         hit_dict["outCitations"] = hit["_source"]["outCitations"].split(",")
-    #
-    #     hit_list.append(hit_dict)
-    #return JsonResponse(final_result, safe=False)
+            node["inCitations"] = paper["_source"]["inCitations"]
+        if "score" in paper["_source"]:
+            node["score"] = paper["_source"]["score"]
+        nodes.append(node)
+        links.append(link)
+    return JsonResponse({"nodes":nodes,
+                         "links":links}, safe=False)
 
 def sort_by_rank(request):#按照重要性分数排序
     #key_words = request.GET.get('query')  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
