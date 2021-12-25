@@ -1,17 +1,20 @@
 # 后端运行方法(citation_network)
 
 ## Choice A:
-安装anaconda，参考教程：https://blog.csdn.net/ITLearnHall/article/details/81708148
-配置mongodb和elasticsearch，参考：https://www.yuque.com/huajian-z02yc/ycr4n1/az0epz
+安装anaconda并创建虚拟环境，激活虚拟环境
 Install the dependencies
 ```bash
-pip install
+conda install
 django==2.2.6
 drf-haystack==1.8.11
 elasticsearch==5.5.3
 djangorestframework==3.12.4
 elasticsearch-dsl==5.3.0
 ```
+配置mongodb和elasticsearch，参考：https://www.yuque.com/huajian-z02yc/ycr4n1/az0epz
+
+
+
 
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
