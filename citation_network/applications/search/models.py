@@ -1,11 +1,14 @@
-from django.db import models
-
-#这一部分是用elasticsearch-dsl####################
-from elasticsearch_dsl import DocType, Date, Nested, Boolean, \
-    analyzer, Completion, Keyword, Text, Integer, Float
+# 这一部分是用elasticsearch-dsl####################
+from elasticsearch_dsl import (
+    DocType,
+    Text,
+    Integer,
+    Float,
+)
 from elasticsearch_dsl.connections import connections
 
 connections.create_connection(hosts=["localhost"])
+
 
 class PaperType(DocType):
     Sid = Text()
@@ -20,6 +23,7 @@ class PaperType(DocType):
     class Meta:
         index = "otrap"
         doc_type = "paper"
+
 
 if __name__ == "__main__":
     PaperType.init()
