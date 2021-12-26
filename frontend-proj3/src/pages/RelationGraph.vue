@@ -157,7 +157,7 @@ export default {
           tmp = Math.min(tmp, 0.8);
         }
         if (tmp < 0.1) {
-          tmp = Math.max(tmp, 0.2);
+          tmp = Math.max(tmp, 0.1);
         }
         node.symbolSize = symbolSizeScale * tmp;
 
