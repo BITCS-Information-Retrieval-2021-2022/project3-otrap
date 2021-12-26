@@ -27,8 +27,12 @@
 5.前端：QUASAR、vue2 vuex vue-router、axios、RESTful
 
 ## 项目结构
-插图
 
+![Image text](https://github.com/BITCS-Information-Retrieval-2021-2022/project3-otrap/blob/main/images/后端.png)
+
+## 代码风格
+
+![Image text](https://github.com/BITCS-Information-Retrieval-2021-2022/project3-otrap/blob/main/images/flake8.jpg)
 
 ## 后端部署、启动运行流程(citation_network)（`篇幅限制的都写了"参考"`）
 
