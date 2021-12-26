@@ -135,22 +135,23 @@ export default {
       let webkitDep = res.data;
       // preprocess
       var dict = {};
-      // let smin = 1;
-      // let smax = -1;
-      let norm = 0;
-      let symbolSizeScale = 100;
+      let smin = 1;
+      let smax = -1;
+      // let norm = 0;
+      let symbolSizeScale = 60;
       webkitDep.nodes.map(function (node) {
-        node.symbolSize = Math.exp(node.score);
-        norm += node.symbolSize;
-        // smin = Math.min(smin, node.score);
-        // smax = Math.max(smax, node.score);
+        // node.symbolSize = Math.exp(node.score);
+        // norm += node.symbolSize;
+        smin = Math.min(smin, node.score);
+        smax = Math.max(smax, node.score);
         return node;
       });
       webkitDep.nodes.forEach(function (node, idx) {
         node.id = idx;
         dict[node.Sid] = node.id;
-        // node.score = (node.score - smin) / (smax - smin);
-        node.symbolSize = (symbolSizeScale * node.symbolSize) / norm;
+        // node.symbolSize = (symbolSizeScale * node.symbolSize) / norm;
+        node.score = (node.score - smin) / (smax - smin + smin);
+        node.symbolSize = symbolSizeScale * Math.pow(2 * node.score - 1, 5) + 1;
         return node;
       });
       webkitDep.links.map(function (link) {

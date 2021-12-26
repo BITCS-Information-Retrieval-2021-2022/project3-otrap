@@ -58,7 +58,7 @@
       <q-tr :props="props" @mouseenter="focus_node(props.row.sid)">
         <template v-if="expandAll">
           <q-td key="PaperId" :props="props">
-            {{ props.row.sid }}
+            {{ props.row.Sid }}
           </q-td>
         </template>
         <q-td key="Title" :props="props" class="">
@@ -215,6 +215,11 @@ export default {
       this.$q.loading.show();
       let url = "/api/retrieval/intensified?query=" + this.dquery;
       let num = 20;
+      if (this.expandAll) {
+        num = 100;
+      } else {
+        num = 20;
+      }
 
       if (this.data_intensified.length == 0 || this.commit_new_query) {
         console.log(url);
