@@ -18,23 +18,25 @@ class retrieval(View):
         key_words = request.GET[
             "query"
         ]  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
-        #paper_count = int(client.count(index="otrap")["count"])  # 总的paper数量
+        # paper_count = int(client.count(index="otrap")["count"])  # 总的paper数量
         # page = request.GET.get("page")
         # max_query = request.GET['max_query']
         max_query = 100
         if not max_query:
             max_query = 100
-        start_time = datetime.now()
         response = client.search(
             index="otrap",
             body={
-                "query": {"multi_match": {"query": key_words, "fields": ["title"]}},
+                "query": {
+                    "multi_match": {
+                        "query": key_words,
+                        "fields": ["title"]
+                    }
+                },
                 "size": max_query,
             },
         )
         # print(response)
-        end_time = datetime.now()
-        last_seconds = (end_time - start_time).total_seconds()
         result_total = response["hits"]["total"]  # 检索出来的paper总数
         hit_list = []
         for hit in response["hits"]["hits"]:
@@ -47,13 +49,16 @@ class retrieval(View):
             if "year" in hit["_source"]:
                 hit_dict["year"] = int(hit["_source"]["year"])
             if "inCitationsCount" in hit["_source"]:
-                hit_dict["inCitationsCount"] = int(hit["_source"]["inCitationsCount"])
+                hit_dict["inCitationsCount"] = \
+                    int(hit["_source"]["inCitationsCount"])
             if "outCitationsCount" in hit["_source"]:
-                hit_dict["outCitationsCount"] = int(hit["_source"]["outCitationsCount"])
+                hit_dict["outCitationsCount"] = \
+                    int(hit["_source"]["outCitationsCount"])
 
             hit_list.append(hit_dict)
         # print(hit_list)
-        return JsonResponse({"paper_list": hit_list, "result_total": result_total})
+        return JsonResponse({"paper_list": hit_list,
+                             "result_total": result_total})
 
 
 def relation_graph(request):  # 画图
@@ -63,8 +68,13 @@ def relation_graph(request):  # 画图
     results1 = client.search(
         index="otrap",
         body={
-            "query": {"multi_match": {"query": key_words, "fields": ["title"]}},
-            "size": 50,
+            "query": {
+                "multi_match": {
+                    "query": key_words,
+                    "fields": ["title"]
+                }
+            },
+            "size": 200,
         },
     )
     nodes = []  # 检索出的所有点集
@@ -74,14 +84,11 @@ def relation_graph(request):  # 画图
         node1 = {}
         link = {}
         sid = []
-        if "Sid" in paper1["_source"]:
-            node1["Sid"] = paper1["_source"]["Sid"]
-            sid.append(paper1["_source"]["Sid"])  # 已经加入nodes列表的sid
-        if "title" in paper1["_source"]:
-            node1["title"] = paper1["_source"]["title"]
+        sid.append(paper1["_source"]["Sid"])  # 已经加入nodes列表的sid
+        node1["Sid"] = paper1["_source"]["Sid"]
+        node1["title"] = paper1["_source"]["title"]
         node1["category"] = 1
-        if "score" in paper1["_source"]:
-            node1["score"] = paper1["_source"]["score"]
+        node1["score"] = paper1["_source"]["score"]
         nodes.append(node1)  # 符合query的点
         if "outCitations " in paper1["_source"]:
             for target in paper1["_source"]["outCitations"]:
@@ -94,26 +101,37 @@ def relation_graph(request):  # 画图
                                     "Sid": target,
                                 }
                             },
+                            "size": 100,
                         },
                     )
                     if results2["hits"]["total"] != 0:
-                        node2 = {}
                         paper2 = results2["hits"]["hits"][0]
                         link["source"] = paper1["_source"]["Sid"]
                         link["target"] = target
                         old_links.append(link)  # 可以形成边
+                        node2 = {}
                         if paper2["_source"]["Sid"] in sid:  # 如果这个点已经在nodes中
                             continue
                         else:
-                            if "Sid" in paper2["_source"]:
-                                sid.append(paper2["_source"]["Sid"])
-                                node2["Sid"] = paper2["_source"]["Sid"]
-                            if "title" in paper2["_source"]:
-                                node2["title"] = paper2["_source"]["title"]
-                                node2["category"] = 2
-                            if "score" in paper2["_source"]:
-                                node2["score"] = paper2["_source"]["score"]
+                            sid.append(paper2["_source"]["Sid"])
+                            node2["Sid"] = paper2["_source"]["Sid"]
+                            node2["title"] = paper2["_source"]["title"]
+                            node2["category"] = 2
+                            node2["score"] = paper2["_source"]["score"]
                             nodes.append(node2)
+                            for i in paper2["_source"]["inCitations"]:
+                                if i in sid:
+                                    link1 = {}
+                                    link1["source"] = i
+                                    link1["target"] = paper2["_source"]["Sid"]
+                                    old_links.append(link1)
+                            for i in paper2["_source"]["outCitations"]:
+                                if i in sid:
+                                    link1 = {}
+                                    link1["source"] = paper2["_source"]["Sid"]
+                                    link1["target"] = i
+                                    old_links.append(link1)
+
         if "inCitations" in paper1["_source"]:
             for source in paper1["_source"]["inCitations"]:
                 if source:
@@ -125,10 +143,10 @@ def relation_graph(request):  # 画图
                                     "Sid": source,
                                 }
                             },
+                            "size": 100,
                         },
                     )
                     if results2["hits"]["total"] != 0:
-                        node2 = {}
                         paper2 = results2["hits"]["hits"][0]
                         link["source"] = source
                         link["target"] = paper1["_source"]["Sid"]
@@ -136,15 +154,25 @@ def relation_graph(request):  # 画图
                         if paper2["_source"]["Sid"] in sid:
                             continue
                         else:
-                            if "Sid" in paper2["_source"]:
-                                node2["Sid"] = paper2["_source"]["Sid"]
-                            if "title" in paper2["_source"]:
-                                node2["title"] = paper2["_source"]["title"]
-                                node2["category"] = 0
-                            if "score" in paper2["_source"]:
-                                node2["score"] = paper2["_source"]["score"]
+                            node2 = {}
+                            sid.append(paper2["_source"]["Sid"])
+                            node2["Sid"] = paper2["_source"]["Sid"]
+                            node2["title"] = paper2["_source"]["title"]
+                            node2["category"] = 0
+                            node2["score"] = paper2["_source"]["score"]
                             nodes.append(node2)
-
+                            for i in paper2["_source"]["inCitations"]:
+                                if i in sid:
+                                    link1 = {}
+                                    link1["source"] = i
+                                    link1["target"] = paper2["_source"]["Sid"]
+                                    old_links.append(link1)
+                            for i in paper2["_source"]["outCitations"]:
+                                if i in sid:
+                                    link1 = {}
+                                    link1["source"] = paper2["_source"]["Sid"]
+                                    link1["target"] = i
+                                    old_links.append(link1)
     for i in old_links:
         if i not in links:
             links.append(i)
@@ -154,7 +182,9 @@ def relation_graph(request):  # 画图
     categories.append({"name": "引用"})
     categories.append({"name": "搜索结果"})
     categories.append({"name": "被引"})
-    return JsonResponse({"nodes": nodes, "links": links, "categories": categories})
+    return JsonResponse({"nodes": nodes,
+                         "links": links,
+                         "categories": categories})
 
 
 def sort_by_rank(request):  # 按照重要性分数排序
@@ -162,7 +192,7 @@ def sort_by_rank(request):  # 按照重要性分数排序
         "query"
     )  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
     # key_words = 'for'
-    #paper_count = int(client.count(index="otrap")["count"])
+    # paper_count = int(client.count(index="otrap")["count"])
     # page = request.GET.get("page")
     # max_query = request.GET.get("max_query")
     max_query = 100
@@ -172,7 +202,12 @@ def sort_by_rank(request):  # 按照重要性分数排序
     response = client.search(
         index="otrap",
         body={
-            "query": {"multi_match": {"query": key_words, "fields": ["title"]}},
+            "query": {
+                "multi_match": {
+                    "query": key_words,
+                    "fields": ["title"]
+                }
+            },
             "size": max_query,
             "sort": [{"score": "desc"}],
         },
@@ -191,9 +226,11 @@ def sort_by_rank(request):  # 按照重要性分数排序
         if "year" in hit["_source"]:
             hit_dict["year"] = int(hit["_source"]["year"])
         if "inCitationsCount" in hit["_source"]:
-            hit_dict["inCitationsCount"] = int(hit["_source"]["inCitationsCount"])
+            hit_dict["inCitationsCount"] = \
+                int(hit["_source"]["inCitationsCount"])
         if "outCitationsCount" in hit["_source"]:
-            hit_dict["outCitationsCount"] = int(hit["_source"]["outCitationsCount"])
+            hit_dict["outCitationsCount"] = \
+                int(hit["_source"]["outCitationsCount"])
         if "score" in hit["_source"]:
             hit_dict["score"] = round(float(hit["_source"]["score"]), 2)
 
