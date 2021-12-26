@@ -141,7 +141,7 @@ export default {
       let symbolSizeScale = 100;
       webkitDep.nodes.map(function (node) {
         node.symbolSize = Math.exp(node.score);
-        norm += norm + node.symbolSize;
+        norm += node.symbolSize;
         // smin = Math.min(smin, node.score);
         // smax = Math.max(smax, node.score);
         return node;
