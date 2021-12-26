@@ -155,6 +155,13 @@ export default {
         node.symbolSize =
           symbolSizeScale * (1 / 5) * Math.tan(Math.PI * (node.score - 0.5)) +
           0.5;
+        if (node.symbolSize > 0.98) {
+          node.symbolSize = Math.min(node.symbolSize, 0.98);
+        }
+        if (node.symbolSize < 0.02) {
+          node.symbolSize = Math.max(node.symbolSize, 0.02);
+        }
+
         return node;
       });
       webkitDep.links.map(function (link) {
