@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- <div style="height: 100px" /> -->
     <div class="row justify-center items-start no-wrap">
       <div id="relation_graph" class="my-graph"></div>
     </div>
@@ -12,16 +11,32 @@ export default {
   data() {
     return {};
   },
+  computed: {
+    global_query: function () {
+      console.log(
+        "get glb_query:" + this.$store.getters["GlobalSearch/getQuery"]
+      );
+      return this.$store.getters["GlobalSearch/getQuery"];
+    },
+  },
+  watch: {
+    global_query: async function (val, oldVal) {
+      if (val) {
+        console.log("re-render graph");
+        this.rerender_graph3();
+      }
+    },
+  },
   mounted() {
     let url = "/api/relation_graph?query=" + this.$route.query.user_query;
     var echarts = require("echarts");
     // this.graph_render(echarts, url);
+    // this.toy_model_render(echarts); // 点击 “话题分析” 添加节点
 
     this.graph_render3(echarts, url);
-    // this.toy_model_render(echarts); // 点击 “话题分析” 添加节点
   },
   methods: {
-    // template 1
+    // toy template 1
     async graph_render(echarts, url) {
       var ROOT_PATH =
         "https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples";
@@ -104,34 +119,6 @@ export default {
       };
       return option;
     },
-    manipulate_data(myChart) {
-      myChart.on(
-        "click",
-        function (params) {
-          console.log("show click params:");
-          console.log(params);
-
-          if (params.name == null) {
-            return;
-          }
-
-          if (params.dataType == "node") {
-            console.log("show click node");
-            console.log(params.data);
-            this.$store.commit("RelationGraph/setNodeId", params.data.Sid);
-            // this.$store.commit("RelationGraph/setNodeTitle", params.data.name);
-            // console.log(this.$store.state.RelationGraph.nodeId)
-            // console.log(this.$store.getters["RelationGraph/getNodeId"]);
-          } else if (params.dataType == "edge") {
-            console.log("show click edge");
-            console.log(params);
-            this.$store.commit("RelationGraph/setEdge", params.data);
-            let e = this.$store.getters["RelationGraph/getEdge"];
-            console.log(e.source, "->", e.target);
-          }
-        }.bind(this)
-      );
-    },
     // template 3
     async graph_render3(echarts, url) {
       var myChart = echarts.init(document.getElementById("relation_graph"));
@@ -148,17 +135,25 @@ export default {
       let webkitDep = res.data;
       // preprocess
       var dict = {};
-      webkitDep.nodes.map(function (node, idx) {
+      let smin = 1;
+      let smax = -1;
+      let symbolSizeScale = 30;
+      webkitDep.nodes.map(function (node) {
+        smin = Math.min(smin, node.score);
+        smax = Math.max(smax, node.score);
+        return node;
+      });
+      webkitDep.nodes.forEach(function (node, idx) {
         node.id = idx;
-        return node;
-      });
-      webkitDep.nodes.forEach(function (node) {
         dict[node.Sid] = node.id;
-      });
-      webkitDep.links.map(function (node) {
-        node.source = dict[node.source];
-        node.target = dict[node.target];
+        node.score = (node.score - smin) / (smax - smin);
+        node.symbolSize = symbolSizeScale * node.score;
         return node;
+      });
+      webkitDep.links.map(function (link) {
+        link.source = dict[link.source];
+        link.target = dict[link.target];
+        return link;
       });
 
       var option = {
@@ -190,7 +185,39 @@ export default {
       option && myChart.setOption(option);
       this.manipulate_data(myChart);
     },
-    // toy template
+    manipulate_data(myChart) {
+      myChart.on(
+        "click",
+        function (params) {
+          console.log("show click params:");
+          console.log(params);
+
+          if (params.name == null) {
+            return;
+          }
+
+          if (params.dataType == "node") {
+            console.log("show click node");
+            console.log(params.data);
+            this.$store.commit("RelationGraph/setNodeId", params.data.Sid);
+            // this.$store.commit("RelationGraph/setNodeTitle", params.data.name);
+            // console.log(this.$store.state.RelationGraph.nodeId)
+            // console.log(this.$store.getters["RelationGraph/getNodeId"]);
+          } else if (params.dataType == "edge") {
+            console.log("show click edge");
+            console.log(params);
+            this.$store.commit("RelationGraph/setEdge", params.data);
+            let e = this.$store.getters["RelationGraph/getEdge"];
+            console.log(e.source, "->", e.target);
+          }
+        }.bind(this)
+      );
+    },
+    async rerender_graph3() {
+      var echarts = require("echarts");
+      this.graph_render3(echarts, url);
+    },
+    // toy template 2
     toy_model_render(echarts) {
       var myChart = echarts.init(document.getElementById("relation_graph"));
       var option = {

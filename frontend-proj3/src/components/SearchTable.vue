@@ -226,12 +226,13 @@ export default {
           }
         });
         this.commit_new_query = false;
+        // used for PaperInfo initialization
         this.$store.commit(
           "GlobalSearch/setFirstNodeSid",
           this.data_intensified[0].Sid
         );
-        // console.log(this.data_intensified[0].Sid);
-        // console.log(this.$store.getters["GlobalSearch/getFirstNodeSid"]);
+        // used for relation graph re-rendering
+        this.$store.commit("GlobalSearch/setQuery", this.dquery);
       }
       this.$q.loading.hide();
     },

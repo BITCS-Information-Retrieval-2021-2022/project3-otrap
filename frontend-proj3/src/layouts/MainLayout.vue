@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-toolbar-title>
           <q-icon class="q-pr-md" name="eva-home" @click="toHomePage" />
-          Proj3 xxx
+          otrap of project 3
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
