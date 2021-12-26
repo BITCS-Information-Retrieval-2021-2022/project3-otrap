@@ -138,7 +138,7 @@ export default {
       let smin = 1;
       let smax = -1;
       // let norm = 0;
-      let symbolSizeScale = 60;
+      let symbolSizeScale = 30;
       webkitDep.nodes.map(function (node) {
         // node.symbolSize = Math.exp(node.score);
         // norm += node.symbolSize;
