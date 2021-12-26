@@ -153,11 +153,11 @@ export default {
         node.score = (node.score - smin) / (smax - smin + smin);
         // node.symbolSize = symbolSizeScale * Math.pow(2 * node.score - 1, 3) + 1;
         let tmp = (1 / 5) * Math.tan(Math.PI * (node.score - 0.5)) + 0.5;
-        if (tmp > 0.98) {
-          tmp = Math.min(tmp, 0.98);
+        if (tmp > 0.8) {
+          tmp = Math.min(tmp, 0.8);
         }
-        if (tmp < 0.02) {
-          tmp = Math.max(tmp, 0.02);
+        if (tmp < 0.1) {
+          tmp = Math.max(tmp, 0.2);
         }
         node.symbolSize = symbolSizeScale * tmp;
 
