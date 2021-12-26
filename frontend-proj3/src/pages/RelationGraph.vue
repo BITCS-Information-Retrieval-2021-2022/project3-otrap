@@ -23,7 +23,8 @@ export default {
     global_query: async function (val, oldVal) {
       if (val) {
         console.log("re-render graph");
-        this.rerender_graph3();
+        let url = "/api/relation_graph?query=" + val;
+        this.rerender_graph3(url);
       }
     },
   },
@@ -226,7 +227,7 @@ export default {
         }.bind(this)
       );
     },
-    async rerender_graph3() {
+    async rerender_graph3(url) {
       var echarts = require("echarts");
       this.graph_render3(echarts, url);
     },
