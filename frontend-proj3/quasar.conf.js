@@ -79,7 +79,7 @@ module.exports = function (/* ctx */) {
       open: true, // opens browser window automatically
       proxy: {
         "/api": {
-          target: "http://127.0.0.1:8000",//http://469759d18x.zicp.vip/",
+          target: "http://127.0.0.1:8000",//http://469759d18x.zicp.vip/",http://127.0.0.1:8000
           changeOrigin: true,
           pathRewrite: {
             "^/api": ""
