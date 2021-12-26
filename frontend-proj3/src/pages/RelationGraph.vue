@@ -135,19 +135,22 @@ export default {
       let webkitDep = res.data;
       // preprocess
       var dict = {};
-      let smin = 1;
-      let smax = -1;
+      // let smin = 1;
+      // let smax = -1;
+      let norm = 0;
       let symbolSizeScale = 100;
       webkitDep.nodes.map(function (node) {
-        smin = Math.min(smin, node.score);
-        smax = Math.max(smax, node.score);
+        node.symbolSize = Math.exp(node.score);
+        norm += norm + node.symbolSize;
+        // smin = Math.min(smin, node.score);
+        // smax = Math.max(smax, node.score);
         return node;
       });
       webkitDep.nodes.forEach(function (node, idx) {
         node.id = idx;
         dict[node.Sid] = node.id;
-        node.score = (node.score - smin) / (smax - smin);
-        node.symbolSize = symbolSizeScale * node.score;
+        // node.score = (node.score - smin) / (smax - smin);
+        node.symbolSize = (symbolSizeScale * node.symbolSize) / norm;
         return node;
       });
       webkitDep.links.map(function (link) {
@@ -158,7 +161,7 @@ export default {
 
       var option = {
         legend: {
-          data: ["in", "res", "out"],
+          data: ["引用", "搜索结果", "被引"],
         },
         series: [
           {
