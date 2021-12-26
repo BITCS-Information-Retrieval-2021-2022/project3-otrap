@@ -74,6 +74,9 @@
           <q-td key="OutCitationsCount" :props="props">
             {{ props.row.outCitationsCount }}
           </q-td>
+          <q-td key="Score" :props="props">
+            {{ props.row.score }}
+          </q-td>
         </template>
       </q-tr>
     </template>
