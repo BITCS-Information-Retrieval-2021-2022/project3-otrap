@@ -280,7 +280,7 @@ python manage.py runserver
 
 # 前端+可视化
 ## 前端技术
-> 单页富应用SPA
+> 基于以下技术构建的单页富应用SPA，和后端通过RESTful风格通信
 
 
 QUASAR（CLI、UI）
