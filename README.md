@@ -30,6 +30,28 @@
 
 ![Image text](https://github.com/BITCS-Information-Retrieval-2021-2022/project3-otrap/blob/main/images/后端.png)
 
+## 算法设计
+第一步：计算仅考虑引用关系时的论文得分score_link.
+
+- 假设单独使用PageRank算法计算出的结点分数为score_pagerank∈[min,max]，其只考虑论文之间的引用关系，没有考虑论文发表时间。
+- 将其规范化到[0,1]区间得score_link=(score_pagerank-min)/(max-min)∈[0,1].
+
+第二步：计算仅考虑论文发表时间时的论文得分score_time.
+
+- 如下图所示，使用指数函数形式表示仅考虑论文发表时间时的论文重要性分数，其中参数t是论文发表距今的时间，k是待估计的参数。t为0时表示是最新的论文，更有可能是高新科技，因此它的分数是1；t趋向无穷大时表示论文发表时间太早，当时的科技水平很低，因此论文重要性趋近于0.
+![image](https://github.com/BITCS-Information-Retrieval-2021-2022/project3-otrap/blob/main/images/algorithm.png)
+- **据统计，大约10年左右，工业新技术就有30%被淘汰。** 因此当前时间的科技水平与十年前的科技水平比值是10:7。以此作为参数估计的条件，即有e^(10k)=0.7，如上图红线所示。解得k=-0.0356675。因此score_time(t)=e^(-0.0356675t)。
+
+第三步：计算综合得分
+
+- 综合考虑连接关系和发表时间，由于两部分分数都已经规范化到[0,1]区间，论文的总分数是score_link和score_time的加权平均值：
+  **score_total=(1-α)(score_pagerank-min)/(max-min)+αe^[-0.0356675(current_year-year)]**
+
+- 其中α是0到1之间的权重，可以由搜索引擎用户指定。为0表示不考虑时间因素，为1表示只考虑时间因素，测试中可以取0.3。
+  score_pagerank是用PageRank算出的得分，范围是[min,max]。
+  current_year是当前年份，year是该论文发表的年份。
+
+
 ## 图计算部分
 
 ### 现有框架
