@@ -3,15 +3,15 @@ import axios from 'axios'
 
 const axiosInstance = axios.create({
     // baseURL:process.env.API,
-    timeout: 1000
+    timeout: 1500
 });
 
 // 在Vue文件中通过this.$axios来使用
 Vue.prototype.$axios = axiosInstance;
 
 //在main.js设置全局的请求次数，请求的间隙
-axiosInstance.defaults.retry = 5;
-axiosInstance.defaults.retryDelay = 1000;
+axiosInstance.defaults.retry = 8;
+axiosInstance.defaults.retryDelay = 1500;
 
 axiosInstance.interceptors.response.use(undefined, function axiosRetryInterceptor(err) {
     var config = err.config;
