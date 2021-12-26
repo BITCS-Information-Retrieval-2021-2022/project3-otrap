@@ -213,7 +213,7 @@ export default {
     },
     async submit() {
       this.$q.loading.show();
-      let url = "/api/retrieval/intensified?query=" + this.dquery;
+      let url = "/api/retrieval/basic?query=" + this.dquery;
       let num = 20;
       if (this.expandAll) {
         num = 100;
