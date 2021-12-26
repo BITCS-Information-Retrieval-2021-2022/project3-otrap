@@ -278,11 +278,38 @@ mongorestore -h 127.0.0.1 -d otrap D:\otrap
 python manage.py runserver
 ```
 
-# 代码说明（`篇幅限制的都写了"参考"`）
+# 前端+可视化
+## 前端技术
+QUASAR（CLI、UI）
+vue2、vuex vue-router
+axios
+RESTful
+## 可视化技术
+echarts
+
+## 前端业务介绍
+- 主页
+两类搜索
+基础搜索，加入重要性分数结果
+- 表格展示
+两类搜索、排序、分页
+- 查询可视化
+散点图
+左侧可伸缩图标图
+右侧展示论文详细信息
+- 散点图展示：
+节点表示文章，边表示引用关系，
+节点大小表示重要性，节点颜色表示关于当前查询结果的paper类别
+- 节点类别：
+关于当前查询(query)的结果叫“结果集合”
+结果集中文章的“引用文章集合”
+结果集中文章的“被引用文章集合”
+
+
+## 前端代码说明（`篇幅限制的都写了"参考"`）
 代码目录结构说明，参考：https://blog.csdn.net/Xiayuyuren_Study/article/details/85127905 
 
 代码必要说明：见代码注释
-
 
 
 ## 前端运行方法(frontend-proj3)
@@ -291,17 +318,15 @@ python manage.py runserver
 安装 Quasar CLI，详见：http://www.quasarchs.com/quasar-cli/installation#introduction
 
 
-# 代码说明（`篇幅限制的都写了"详见参考"`）
+## 前端代码说明
 代码目录结构说明：
 
 详见：http://www.quasarchs.com/quasar-cli/directory-structure#introduction
 
-代码必要说明：
 
-见代码注释
+代码必要说明：见代码注释
 
-部署过程、启动运行流程：
-
+## 前端部署过程、启动运行流程：
 
 **Install the dependencies**
 ```bash
@@ -313,7 +338,7 @@ npm install
 quasar dev
 ```
 
-依赖的第三方库的目录及版本：
+## 前端依赖的第三方库的目录及版本：
 ```json
 {
   "name": "frontend-proj3",
