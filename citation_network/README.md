@@ -1,4 +1,4 @@
-# 后端部署、启动运行流程(citation_network)（篇幅限制的都写了"参考"）
+# 后端部署、启动运行流程(citation_network)（`篇幅限制的都写了"参考"`）
 
 安装anaconda并创建虚拟环境（Python==3.6），激活虚拟环境
 Install the dependencies
@@ -22,7 +22,7 @@ mongorestore -h 127.0.0.1 -d otrap D:\otrap
 python manage.py runserver
 ```
 
-# 代码说明（篇幅限制的都写了"参考"）
+# 代码说明（`篇幅限制的都写了"参考"`）
 代码目录结构说明，参考：https://blog.csdn.net/Xiayuyuren_Study/article/details/85127905 
 
 代码必要说明：见代码注释
