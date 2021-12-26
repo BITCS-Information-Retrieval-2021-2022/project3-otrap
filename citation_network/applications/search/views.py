@@ -2,6 +2,7 @@ from elasticsearch import Elasticsearch,helpers
 from django.views.generic.base import View
 from datetime import datetime
 from django.http import HttpResponse, JsonResponse
+import decimal
 
 # Create your views here.
 
@@ -145,9 +146,9 @@ def relation_graph(request):#画图
     print(nodes)
     print(links)
     categories=[]
-    categories.append({"name":"in"})
-    categories.append({"name":"res"})
-    categories.append({"name":"out"})
+    categories.append({"name":"引用"})
+    categories.append({"name":"搜索结果"})
+    categories.append({"name":"被引"})
     return JsonResponse({"nodes":nodes,
                          "links":links,"categories":categories})
 
@@ -171,11 +172,11 @@ def sort_by_rank(request):#按照重要性分数排序
                 }
             },
             "size": max_query,
-            # "sort": [
-            #     {
-            #         "score": "desc"
-            #     }
-            # ],
+            "sort": [
+                {
+                    "score": "desc"
+                }
+            ],
         }
     )
     #print(response)
@@ -196,7 +197,7 @@ def sort_by_rank(request):#按照重要性分数排序
         if "outCitationsCount" in hit["_source"]:
             hit_dict["outCitationsCount"] = int(hit["_source"]["outCitationsCount"])
         if "score" in hit["_source"]:
-            hit_dict["score"] = float(hit["_source"]["score"])
+            hit_dict["score"] = round(float(hit["_source"]["score"]),2)
 
         hit_list.append(hit_dict)
 

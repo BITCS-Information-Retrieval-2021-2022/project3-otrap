@@ -137,7 +137,7 @@ export default {
       var dict = {};
       let smin = 1;
       let smax = -1;
-      let symbolSizeScale = 30;
+      let symbolSizeScale = 100;
       webkitDep.nodes.map(function (node) {
         smin = Math.min(smin, node.score);
         smax = Math.max(smax, node.score);
