@@ -72,21 +72,23 @@ def relation_graph(request):#画图
                     "fields": ["title"]
                 }
             },
-            "size": 100,
+            "size": 50,
         }
     )
     nodes = []#检索出的所有点集
-    links_initial = []#第一次检索出的边
+    old_links=[]
     links = []#最后处理后的边
     for paper1 in results1["hits"]["hits"]:
         node1={}
         link={}
+        sid=[]
         if "Sid" in paper1["_source"]:
             node1["Sid"] = paper1["_source"]["Sid"]
+            sid.append(paper1["_source"]["Sid"])#已经加入nodes列表的sid
         if "title" in paper1["_source"]:
             node1["title"] = paper1["_source"]["title"]
         node1["category"] = 1
-        if "outCitations" in paper1["_source"]:
+        if "outCitations " in paper1["_source"]:
             for target in paper1["_source"]["outCitations"]:
                 if target:
                     results2=client.search(
@@ -102,17 +104,21 @@ def relation_graph(request):#画图
                     if results2["hits"]["total"] != 0:
                         node2={}
                         paper2=results2["hits"]["hits"][0]
-                        if "Sid" in paper2["_source"]:
-                            node2["Sid"] = paper2["_source"]["Sid"]
-                        if "title" in paper2["_source"]:
-                            node2["title"] = paper2["_source"]["title"]
-                        node2["category"] = 2
-                        if "score" in paper2["_source"]:
-                            node2["score"] = paper2["_source"]["score"]
                         link["source"] = paper1["_source"]["Sid"]
                         link["target"] = target
-                        nodes.append(node2)
-                        links.append(link)#可以形成边
+                        old_links.append(link)#可以形成边
+                        if paper2["_source"]["Sid"] in sid:#如果这个点已经在nodes中
+                            continue
+                        else:
+                            if "Sid" in paper2["_source"]:
+                                sid.append(paper2["_source"]["Sid"])
+                                node2["Sid"] = paper2["_source"]["Sid"]
+                            if "title" in paper2["_source"]:
+                                node2["title"] = paper2["_source"]["title"]
+                                node2["category"] = 2
+                            if "score" in paper2["_source"]:
+                                node2["score"] = paper2["_source"]["score"]
+                            nodes.append(node2)
         if "inCitations" in paper1["_source"]:
             for source in paper1["_source"]["inCitations"]:
                 if source:
@@ -129,20 +135,27 @@ def relation_graph(request):#画图
                     if results2["hits"]["total"] != 0:
                         node2 = {}
                         paper2 = results2["hits"]["hits"][0]
-                        if "Sid" in paper2["_source"]:
-                            node2["Sid"] = paper2["_source"]["Sid"]
-                        if "title" in paper2["_source"]:
-                            node2["title"] = paper2["_source"]["title"]
-                        node2["category"] = 0
-                        if "score" in paper2["_source"]:
-                            node2["score"] = paper2["_source"]["score"]
                         link["source"] = source
                         link["target"] = paper1["_source"]["Sid"]
-                        nodes.append(node2)
-                        links.append(link)  # 可以形成边
+                        old_links.append(link)  # 可以形成边
+                        if paper2["_source"]["Sid"] in sid:
+                            continue
+                        else:
+                            if "Sid" in paper2["_source"]:
+                                node2["Sid"] = paper2["_source"]["Sid"]
+                            if "title" in paper2["_source"]:
+                                node2["title"] = paper2["_source"]["title"]
+                                node2["category"] = 0
+                            if "score" in paper2["_source"]:
+                                node2["score"] = paper2["_source"]["score"]
+                            nodes.append(node2)
         if "score" in paper1["_source"]:
             node1["score"] = paper1["_source"]["score"]
         nodes.append(node1)#符合query的点
+
+    for i in old_links:
+        if i not in links:
+            links.append(i)
     print(nodes)
     print(links)
     categories=[]
