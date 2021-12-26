@@ -151,7 +151,10 @@ export default {
         dict[node.Sid] = node.id;
         // node.symbolSize = (symbolSizeScale * node.symbolSize) / norm;
         node.score = (node.score - smin) / (smax - smin + smin);
-        node.symbolSize = symbolSizeScale * Math.pow(2 * node.score - 1, 3) + 1;
+        // node.symbolSize = symbolSizeScale * Math.pow(2 * node.score - 1, 3) + 1;
+        node.symbolSize =
+          symbolSizeScale * (1 / 5) * Math.tan(Math.PI * (node.score - 0.5)) +
+          0.5;
         return node;
       });
       webkitDep.links.map(function (link) {
