@@ -1,11 +1,4 @@
-from django.shortcuts import render
-from .models import PaperType
-from .serializers import PaperSerializer
-from rest_framework.mixins import ListModelMixin
-from rest_framework.generics import GenericAPIView
-#from rest_framework import viewsets
 from elasticsearch import Elasticsearch,helpers
-from django.http import HttpResponse
 from django.views.generic.base import View
 from datetime import datetime
 from django.http import HttpResponse, JsonResponse
@@ -66,7 +59,7 @@ class retrieval(View):
                              })
 
 def relation_graph(request):#画图
-    #key_words = "for"
+    #key_words = "people"
     key_words = request.GET['query']#从前端获取query
     #检索出存在title中存在key_words的结果
     results1 = client.search(
@@ -156,7 +149,7 @@ def relation_graph(request):#画图
     categories.append({"name":"res"})
     categories.append({"name":"out"})
     return JsonResponse({"nodes":nodes,
-                         "links":links,"categories":categories}, safe=False)
+                         "links":links,"categories":categories})
 
 def sort_by_rank(request):#按照重要性分数排序
     key_words = request.GET.get('query')  # 接收一个query变量，query包含了输入框的词，以此返回给elasticsearch做分词匹配
@@ -178,11 +171,11 @@ def sort_by_rank(request):#按照重要性分数排序
                 }
             },
             "size": max_query,
-            "sort": [
-                {
-                    "score": "desc"
-                }
-            ],
+            # "sort": [
+            #     {
+            #         "score": "desc"
+            #     }
+            # ],
         }
     )
     #print(response)
@@ -232,10 +225,6 @@ def paper_info(request):
         paper["Sid"] = hit["_source"]["Sid"]
     if "title" in hit["_source"]:
         paper["title"] = hit["_source"]["title"]
-    if "inCitations" in hit["_source"]:
-        paper["inCitations"] = hit["_source"]["inCitations"].split(",")
-    if "outCitations" in hit["_source"]:
-        paper["outCitations"] = hit["_source"]["outCitations"].split(",")
     if "year" in hit["_source"]:
         paper["year"] = int(hit["_source"]["year"])
     if "inCitationsCount" in hit["_source"]:
