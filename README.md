@@ -20,10 +20,10 @@
 7. 可视化模块：张琦
 
 ##开发工具
-1.图计算框架：grape
-2.数据库：MongoDB
-3.检索：ElasticSearch 
-4.后端：Python、Django
+1.图计算框架：grape  
+2.数据库：MongoDB  
+3.检索：ElasticSearch   
+4.后端：Python、Django  
 5.前端：QUASAR、vue2 vuex vue-router、axios、RESTful
 
 ##项目结构
