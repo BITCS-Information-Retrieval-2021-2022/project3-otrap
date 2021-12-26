@@ -1,4 +1,4 @@
-# 后端运行方法(citation_network)
+# 后端部署、启动运行流程(citation_network)（篇幅限制的都写了"参考"）
 
 安装anaconda并创建虚拟环境（Python==3.6），激活虚拟环境
 Install the dependencies
@@ -17,10 +17,12 @@ mongorestore -h 127.0.0.1 -d otrap D:\otrap
 ```
 -h后为MongoDB的一个地址，otrap为要导入的数据库名称，D:\otrap为数据存放位置
 
-
-
-
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
 python manage.py runserver
 ```
+
+# 代码说明（篇幅限制的都写了"参考"）
+代码目录结构说明，参考：https://blog.csdn.net/Xiayuyuren_Study/article/details/85127905 
+
+代码必要说明：见代码注释
