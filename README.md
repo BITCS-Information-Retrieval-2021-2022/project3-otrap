@@ -24,7 +24,7 @@
 2.数据库：MongoDB  
 3.检索：ElasticSearch   
 4.后端：Python、Django  
-5.前端：QUASAR、vue2 vuex vue-router、axios、RESTful
+5.前端：QUASAR、vue2、vuex、vue-router、axios、RESTful、echarts
 
 ## 项目结构
 
