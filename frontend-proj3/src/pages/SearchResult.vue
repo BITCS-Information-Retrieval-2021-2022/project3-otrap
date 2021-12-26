@@ -55,9 +55,9 @@
 
       <template v-slot:body="props">
         <q-tr :props="props">
-          <!-- <q-td key="PaperId" :props="props">
+          <q-td key="PaperId" :props="props">
             {{ props.row.Sid }}
-          </q-td> -->
+          </q-td>
           <q-td key="Title" :props="props">
             {{ props.row.title }}
           </q-td>
@@ -70,7 +70,7 @@
           <q-td key="OutCitationsCount" :props="props">
             {{ props.row.outCitationsCount }}
           </q-td>
-          <q-td key="Score" :props="props" v-if="this.show_es_res">
+          <q-td key="Score" :props="props" v-if="!show_es_res">
             {{ props.row.score }}
           </q-td>
         </q-tr>
@@ -180,6 +180,19 @@ export default {
     query: async function (val, oldVal) {
       if (val) {
         this.commit_new_query = true;
+      }
+    },
+    show_es_res: function (val, oldVal) {
+      if (this.show_es_res) {
+        this.columns = this.columns.slice(0, -1);
+      } else {
+        this.columns.push({
+          name: "Score",
+          label: "重要性分数",
+          field: "score",
+          align: "left",
+          sortable: true,
+        });
       }
     },
   },
