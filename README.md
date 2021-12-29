@@ -245,7 +245,7 @@ rewrite_citation | 44G   | json结构 | 最终文件
 
 <center>
     <img style="zoom:70%"
-      src="./images/data_flake.png">
+      src="./images/data_flake.jpg">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
